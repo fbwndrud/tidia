@@ -1,0 +1,35 @@
+name: Cleaned wrong
+description: A dictation came out wrong — a word changed, something dropped or added, the wrong language.
+labels: [cleanup]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Each report becomes a test case in `eval/cases.json`. Leave out anything private: you can paraphrase, as long as the problem still shows.
+        Not sure what you actually said? Ask Claude "what was the raw transcript of my last message?"; Tidia sends it beside each tidied message, in one line only Claude sees.
+  - type: textarea
+    id: dictated
+    attributes:
+      label: What you said (the raw dictation)
+    validations:
+      required: true
+  - type: textarea
+    id: sent
+    attributes:
+      label: What was sent
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+  - type: input
+    id: settings
+    attributes:
+      label: Settings
+      description: The output of `/tidia settings`, or at least style, english_terms and model.
+  - type: input
+    id: version
+    attributes:
+      label: Versions
+      description: Claude Code version (`claude --version`) and terminal or desktop app.

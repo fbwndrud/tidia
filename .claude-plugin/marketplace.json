@@ -1,0 +1,16 @@
+{
+  "name": "tidia",
+  "owner": {
+    "name": "JoungKyoungLyoo"
+  },
+  "metadata": {
+    "description": "Tidia: tidy dictation for AI in the Claude Code prompt."
+  },
+  "plugins": [
+    {
+      "name": "tidia",
+      "source": "./",
+      "description": "Tidy dictation for AI: turns voice dictation in the Claude Code prompt into a clear, concise message before you send it, with fillers, repeats and taken-back words gone and several requests as a list; or, in minimal style, keeps your own wording."
+    }
+  ]
+}

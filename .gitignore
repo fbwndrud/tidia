@@ -1,0 +1,6 @@
+.claude-plugin/types/
+node_modules/
+.DS_Store
+.superpowers/
+__pycache__/
+eval/results/

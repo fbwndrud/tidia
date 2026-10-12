@@ -1,0 +1,94 @@
+{
+  "name": "tidia",
+  "displayName": "Tidia — dictation cleanup for Claude Code",
+  "version": "0.1.23",
+  "description": "Tidy dictation for AI: turns voice dictation in the Claude Code prompt into a clear, concise message before you send it, with fillers, repeats and taken-back words gone and several requests as a list; or, in minimal style, keeps your own wording.",
+  "author": { "name": "JoungKyoungLyoo" },
+  "homepage": "https://github.com/fbwndrud/tidia",
+  "repository": "https://github.com/fbwndrud/tidia",
+  "license": "MIT",
+  "keywords": ["voice", "dictation", "mod", "prompt"],
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "style": {
+      "type": "string",
+      "title": "Style",
+      "description": "polish: a clear, concise message for the AI; one point as plain sentences, several requests as a list, and your output rules (wording, register such as polite or casual, layout). minimal: plain sentences in your own words, only fillers and taken-back words removed; output rules are not applied.",
+      "options": ["polish", "minimal"],
+      "default": "polish"
+    },
+    "english_terms": {
+      "type": "string",
+      "title": "English terms",
+      "description": "How far English and technical terms that speech recognition wrote phonetically go back to English spelling. auto: by the dictation's language (high for Korean, Japanese, Russian and other phonetic scripts, low for Chinese and for Latin-script languages other than English, off for English). off: never. low: code (useEffect, git push). medium: also product, company and language names (Claude, Python). high: also technical words (database, commit).",
+      "options": ["auto", "off", "low", "medium", "high"],
+      "default": "auto"
+    },
+    "model": {
+      "type": "string",
+      "title": "Model",
+      "description": "The model that cleans the dictated text. sonnet: most faithful (default). haiku: fastest and cheapest, may drop a request after a spoken correction. opus: most capable, slowest.",
+      "options": ["sonnet", "haiku", "opus"],
+      "default": "sonnet"
+    },
+    "learn": {
+      "type": "string",
+      "title": "Learn corrected words",
+      "description": "ask: when you retype a dictated word the same way twice, add it to the dictionary. off: never learn.",
+      "options": ["ask", "off"],
+      "default": "ask"
+    },
+    "dict_approval": {
+      "type": "string",
+      "title": "Dictionary changes by Claude",
+      "description": "auto: Claude adds a word you dictated that speech recognition got wrong (when the two sound alike), and removes entries it added, without asking; each change is shown. Changing or removing any other entry (yours, or one Tidia learned from your corrections) asks. ask: every dictionary change Claude makes asks you first.",
+      "options": ["auto", "ask"],
+      "default": "auto"
+    },
+    "polish_on": {
+      "type": "string",
+      "title": "When to tidy",
+      "description": "enter: tidy once, when you press Enter (fewest model calls; the send waits a few seconds; message_view sets how the message then shows). pause: tidy when you stop speaking and put the tidied text in the prompt, so you see what Enter sends and can still change it (a model call per pause; speech that goes on cancels it).",
+      "options": ["enter", "pause"],
+      "default": "enter"
+    },
+    "message_view": {
+      "type": "string",
+      "title": "Tidied message view",
+      "description": "How a message tidied at Enter shows in the conversation, on the desktop and in the terminal. tidied: only the message sent. labeled: what Tidia did above it (→ tidied, → list, → minimal). full: what you said, then what Tidia did and the message sent.",
+      "options": ["tidied", "labeled", "full"],
+      "default": "tidied"
+    },
+    "bubble_labels": {
+      "type": "string",
+      "title": "Bubble words",
+      "description": "The words for what Tidia did, shown with message_view labeled or full, in the order tidied/list/minimal, separated by /. A part left empty keeps the interface language's word. Up to 80 characters.",
+      "default": ""
+    },
+    "debug": {
+      "type": "boolean",
+      "title": "Show details",
+      "description": "Show what Tidia does: the tidied preview, the rule and setting changes Claude made, and why a send went out untidied. Off: Tidia stays quiet, except for the dictionary changes Claude makes and Claude turning Tidia on or off, which always show.",
+      "default": false
+    },
+    "dictionary": {
+      "type": "boolean",
+      "title": "Use the dictionary",
+      "description": "Send your dictionary entries and the conversation's file and identifier names to the cleanup as spelling hints, and learn words you correct. Off: tidy without them (your entries are kept).",
+      "default": true
+    },
+    "attach_raw": {
+      "type": "boolean",
+      "title": "Attach the raw transcript",
+      "description": "Send the raw dictation with each tidied message as one line Claude sees and your message row does not, so Claude can recover from a bad cleanup. The line holds a fixed sentence and the raw text only.",
+      "default": true
+    },
+    "ui_language": {
+      "type": "string",
+      "title": "Interface language",
+      "description": "Language of the mod's labels. auto follows Claude Code's language setting (English when it names another language).",
+      "options": ["auto", "en", "ko", "ja", "zh", "es", "de", "fr", "pt"],
+      "default": "auto"
+    }
+  }
+}
