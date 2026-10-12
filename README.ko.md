@@ -92,7 +92,7 @@ npx -y -p typescript@5.6.3 tsc -p .
 
 타입 검사는 `.claude-plugin/types/`의 엔진 선언을 읽습니다. 이 폴더는 Claude Code가 mod를 처음 불러올 때(`claude --plugin-dir .`) 만듭니다.
 
-`eval/`에는 8개 언어의 실제 받아쓰기 164개 골든셋과, 실제 모델로 정리해서 결과를 확인하는 실행기(`python3 -I eval/run.py`)가 있습니다. `docs/manual-checks.md`에는 자동 테스트로 다룰 수 없는 마이크 확인 항목이 있습니다.
+`eval/`에는 8개 언어의 받아쓰기 164개 골든셋(AI가 쓴 문장을 Mac 음성 합성으로 읽혀 Mac 음성 인식으로 받아쓴 것)과, 실제 모델로 정리해서 결과를 확인하는 실행기(`python3 -I eval/run.py`)가 있습니다. 평가 방법, 최신 결과, 결과가 보여 주지 못하는 것은 [EVAL.md](EVAL.md)(영문)에 있습니다. `docs/manual-checks.md`에는 자동 테스트로 다룰 수 없는 마이크 확인 항목이 있습니다.
 
 ## 라이선스
 

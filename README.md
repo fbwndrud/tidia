@@ -92,7 +92,7 @@ npx -y -p typescript@5.6.3 tsc -p .
 
 The typecheck reads the engine's declarations from `.claude-plugin/types/`, which Claude Code writes when it first loads the mod (`claude --plugin-dir .`).
 
-`eval/` holds a golden set of 164 real dictations in eight languages and a runner (`python3 -I eval/run.py`) that cleans them with the real model and checks the results. `docs/manual-checks.md` lists the microphone checks automated tests cannot cover.
+`eval/` holds a golden set of 164 dictations in eight languages (AI-written scripts spoken by the Mac's text-to-speech and transcribed by its speech recognition) and a runner (`python3 -I eval/run.py`) that cleans them with the real model and checks the results. [EVAL.md](EVAL.md) explains the method, the latest results and what they do not show. `docs/manual-checks.md` lists the microphone checks automated tests cannot cover.
 
 ## License
 
