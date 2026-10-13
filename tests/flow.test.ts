@@ -5,17 +5,17 @@ const FRAMES = ['이렇게', '이렇게 이제', '이렇게 이제 이제 이제
 const RAW = FRAMES[3]!
 const composer = (text: string) => ({ text, wait: false, origin: { kind: 'composer' as const } })
 
-test('a settled dictation is polished in the background and put in the prompt', async ($, on) => {
+test('a settled dictation is polished in the background and shown above the prompt', async ($, on) => {
   const h = install(on, { replies: [reply('이렇게 하면 되네.')] })
   await start($)
   await dictate(h, FRAMES)
   await h.clock.advance(1000)
   expect(h.modelCalls).toBe(1)
-  expect(h.filled).toEqual(['이렇게 하면 되네.'])
-  expect(h.draft).toBe('이렇게 하면 되네.')
-  // The prompt shows the result: the band has nothing left to say.
+  // The microphone may still be writing: the prompt is left to it.
+  expect(h.filled).toEqual([])
+  expect(h.draft).toBe(RAW)
   const ui = await $.ui.mount({ ...BAND, surface: 'terminal' })
-  expect(await ui.find({ text: /✨/ })).toBeUndefined()
+  expect(await ui.find({ text: /이렇게 하면 되네\./ })).toBeDefined()
   await ui.unmount()
 })
 
@@ -43,24 +43,10 @@ test('speech that goes on while the cleanup is on its way cancels it; the whole 
   h.hold = false
   await h.clock.advance(1000)
   expect(h.dictated[1]).toBe('음 첫 문장이야 어 그리고 음 두 번째 문장도 있어')
-  expect(h.filled).toEqual(['첫 문장이야. 두 번째 문장도 있어.'])
+  expect(h.filled).toEqual([])
   await $.prompt.submit(enter(h))
   expect(h.submitted[0]?.text).toBe('첫 문장이야. 두 번째 문장도 있어.')
 })
-
-// The microphone may write the whole transcript again over a cleanup that landed at a long pause.
-test('speech after a landed cleanup that writes the transcript again is tidied whole', async ($, on) => {
-  const h = install(on, { replies: [reply('첫 문장이야.'), reply('첫 문장이야. 두 번째 문장도 있어.')] })
-  await start($)
-  await dictate(h, ['음 첫', '음 첫 문장이야 어'])
-  await h.clock.advance(1000)
-  expect(h.draft).toBe('첫 문장이야.')
-  await dictate(h, ['음 첫 문장이야 어 그리고', '음 첫 문장이야 어 그리고 음 두 번째 문장도 있어'])
-  await h.clock.advance(1000)
-  expect(h.dictated[1]).toBe('음 첫 문장이야 어 그리고 음 두 번째 문장도 있어')
-  expect(h.draft).toBe('첫 문장이야. 두 번째 문장도 있어.')
-})
-
 test('only the dictated segment is replaced', async ($, on) => {
   const h = install(on, { draft: 'Fix this: ', replies: [reply('버그를 고쳐 줘.')] })
   await start($)
@@ -109,17 +95,15 @@ test('typing while the cleanup is on its way keeps the prompt as typed', async (
   expect(h.submitted[0]?.text).toBe(`${RAW}!`)
 })
 
-test('a landed cleanup the person edits is sent as edited, with the raw transcript beside it', async ($, on) => {
+test('an edit after the preview drops it: the prompt is sent as edited', async ($, on) => {
   const h = install(on, { replies: [reply('이렇게 하면 되네.')] })
   await start($)
   await dictate(h, FRAMES)
   await h.clock.advance(1000)
-  const landed = h.draft
-  await edit($, { origin: { kind: 'composer' }, key: { key: '!' }, text: landed, cursor: landed.length, start: landed.length, end: landed.length, inputText: '!' })
+  await edit($, { origin: { kind: 'composer' }, key: { key: '!' }, text: RAW, cursor: RAW.length, start: RAW.length, end: RAW.length, inputText: '!' })
   await h.clock.advance(1000)
   await $.prompt.submit(enter(h))
-  expect(h.submitted[0]?.text).toBe('이렇게 하면 되네.!')
-  expect(h.submitted[0]?.context?.[0]).toContain(RAW)
+  expect(h.submitted[0]?.text).toBe(`${RAW}!`)
   expect(h.modelCalls).toBe(1)
 })
 

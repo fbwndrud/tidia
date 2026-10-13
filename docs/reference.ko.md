@@ -64,7 +64,7 @@ Claude에게 말하거나, `/tidia set`, `/config`, 또는 설치할 때 `claude
 | `model` | `sonnet`, `haiku`, `opus` | `sonnet` | 정리에 쓰는 모델. haiku가 가장 빠르고 저렴, opus가 가장 느림. |
 | `learn` | `ask`, `off` | `ask` | ask: 받아쓴 단어를 같은 식으로 두 번 고치면 사전에 추가. |
 | `dict_approval` | `auto`, `ask` | `auto` | auto: 최근 받아쓴 말에서 잘못 알아들은 단어는 발음이 비슷하면 Claude가 묻지 않고 넣고, Claude가 넣은 항목도 묻지 않고 지움. 바꿀 때마다 알려 줌. 그 밖의 항목을 바꾸거나 지울 때는 물음. ask: Claude의 사전 변경을 모두 먼저 물음. |
-| `polish_on` | `enter`, `pause` | `enter` | enter: Enter를 누를 때 한 번 정리. 모델 호출이 가장 적고, 보내기가 몇 초 기다림. Enter 때 정리한 메시지는 데스크톱과 터미널에서 `message_view`대로 보임. 다른 화면(VS Code)에서는 메시지 아래 기록 줄로 알려 줌. pause: 말을 멈추면 정리해서 입력창에 넣음. Enter로 나갈 글을 미리 봄. 멈출 때마다 모델 호출, 말을 이어 가면 취소. 들어오기 전에 누른 Enter는 정리를 기다림. |
+| `polish_on` | `enter`, `pause` | `enter` | enter: Enter를 누를 때 한 번 정리. 모델 호출이 가장 적고, 보내기가 몇 초 기다림. Enter 때 정리한 메시지는 데스크톱과 터미널에서 `message_view`대로 보임. 다른 화면(VS Code)에서는 메시지 아래 기록 줄로 알려 줌. pause: 말을 멈출 때마다 정리해서 입력창 위에 보여 줌. Enter로 나갈 글을 미리 봄. 멈출 때마다 모델 호출(메시지당 보통 2–4번), 말을 이어 가면 버림. 마이크가 켜져 있을 때 입력창을 채우면 마이크가 멈추므로 입력창은 받아쓴 그대로 둠. 미리보기는 고칠 수 없음: 입력창을 고치면 정리 없이 고친 그대로 나감. 미리보기가 준비되기 전에 누른 Enter는 정리를 기다림. |
 | `debug` | `on`, `off` | `off` | Tidia가 하는 일을 보여 줌. 밴드의 미리보기, Claude가 바꾼 내용 알림, 정리 없이 나간 이유. off면 밴드는 정리 중일 때만 알려 줌. |
 | `dictionary` | `on`, `off` | `on` | 사전과 대화 속 파일·식별자 이름을 표기 힌트로 보내고, 고친 단어를 배움. off면 힌트 없이 정리하고 배우지 않음. 항목은 그대로 둠. |
 | `message_view` | `tidied`, `labeled`, `full` | `tidied` | Enter 때 정리한 메시지를 데스크톱과 터미널에서 보여 주는 방식. tidied: 보낸 글만. labeled: Tidia가 한 일(`→ 간결화`/`→ 목록화`/`→ 최소 수정`, 조건이 붙은 출력 규칙을 적용했으면 `· 규칙 적용`) 아래 보낸 글을 줄마다. full: 말한 원문 아래 같은 내용. 엔진의 원래 줄 글만 바꾸므로 데스크톱 말풍선의 시간·복사·되돌리기·fork 줄이 그대로 남음. 0.1.22 전에 저장한 `show_raw show`는 `full`로, `hide`는 `labeled`로 옮김. |

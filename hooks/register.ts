@@ -18,6 +18,7 @@ import { findSegment, replaceSegment, type Segment } from '../src/segment'
 import { countWords, words } from '../src/tokens'
 import { renderBand, type BandEls } from '../src/ui/band'
 import { customLabels, parseNotes, sentRowText, storable, withNote, type LabelKind } from '../src/ui/bubble'
+import { parsePrints, promptPrint, withPrints } from '../src/recall'
 import { renderDictPane, type PaneEls, type PaneModel, type PaneRow } from '../src/ui/dictPane'
 
 const view = atom({ plugin: 'tidia', key: 'view' } as const, null)
@@ -29,6 +30,9 @@ const sentNotes = atom({ plugin: 'tidia', key: 'sent' } as const, null)
 // the notes are kept in $.store too, and read from there while the state is empty.
 const SENT_KEY = 'sent-notes'
 let kept: SentNote[] = []
+// Fingerprints of the prompts sent, newest first, so a prompt recalled with ↑ is not taken for speech.
+const PRINTS_KEY = 'sent-prints'
+let prints: number[] = []
 // The session's id, for the notes; /clear, /resume and a fork change it.
 let session: string | null | undefined
 async function sessionId($: EngineInterface): Promise<string | null> {
@@ -1222,41 +1226,11 @@ async function present($: EngineInterface, id: number, outcome: Outcome, sent: n
     await clearView($, id)
     return
   }
-  // Enter until the fill lands sends this result.
+  // The cleanup shows above the prompt, never in it: no surface says when a recording ends, and a
+  // fill stops the microphone, so what was said after the pause was lost (manual check S1,
+  // 2026-10-13). Enter sends this result while the prompt still holds what it was made from.
   ctx.ready = { ...p, id }
-  const tidied = replaceSegment(p.draft, p.segment, p.replacement)
-  if (await land($, p, tidied)) {
-    await clearView($, id)
-    return
-  }
-  await update($, view, (): BandView => ({ kind: 'ready', id, text: tidied }))
-}
-
-// Puts the tidied dictation in the prompt, so the person sees what Enter sends and can still change
-// it. False when the prompt cannot take it (a dialog is open); Enter then sends the result.
-async function land($: EngineInterface, p: Polished, text: string): Promise<boolean> {
-  const sent = ctx.sent
-  let filled: boolean
-  try {
-    filled = (await $.prompt.fill({ text, mode: 'replace' })).isFilled
-  } catch (err) {
-    $.ui.log(`tidia: could not put the cleanup in the prompt (${message(err)})`, { to: 'debug' })
-    return false
-  }
-  if (!filled) return false
-  // Enter came while the fill was on its way and sent this result: the prompt is the next message's.
-  if (ctx.sent !== sent) {
-    await $.prompt.fill({ text: '', mode: 'replace' }).catch(() => undefined)
-    return true
-  }
-  // More speech after a landed cleanup is tidied on its own, beside it: what was said is both runs.
-  const earlier = ctx.landed !== null && p.draft.includes(ctx.landed.text) ? `${ctx.landed.raw} ` : ''
-  forgetDictation()
-  ctx.landed = { text, raw: earlier + p.original }
-  // A word the person retypes in the cleanup is a correction to learn, as over a raw dictation.
-  ctx.learnBase = { text, region: { start: p.segment.start, end: p.segment.start + p.replacement.length } }
-  ctx.det = initial(text)
-  return true
+  await update($, view, (): BandView => ({ kind: 'ready', id, text: replaceSegment(p.draft, p.segment, p.replacement) }))
 }
 
 async function dismissOnEdit($: EngineInterface): Promise<void> {
@@ -1375,6 +1349,17 @@ async function voiceSubmits($: EngineInterface): Promise<boolean> {
   }
 }
 
+// Other sessions send too: the prints go into what the store holds now. Losing them costs only a
+// recalled prompt tidied again.
+async function rememberPrints($: EngineInterface, texts: readonly string[]): Promise<void> {
+  prints = withPrints(prints, texts)
+  try {
+    await $.store.set(PRINTS_KEY, withPrints(parsePrints(await $.store.get(PRINTS_KEY)), texts))
+  } catch (err) {
+    $.ui.log(`tidia: could not keep the sent prompts (${message(err)})`, { to: 'debug' })
+  }
+}
+
 async function polishForSubmit($: EngineInterface, text: string, d: Dictation): Promise<{ text: string; raw: string; polished: Polished } | null> {
   if (!ctx.enabled) return null
   // Bash mode and slash commands are not messages to tidy.
@@ -1404,7 +1389,11 @@ async function polishForSubmit($: EngineInterface, text: string, d: Dictation): 
   // Tap mode and autoSubmit put the final transcript in and submit it at once, so the poll saw the
   // speech once or not at all. Under hold-to-talk without autoSubmit that is a recalled prompt.
   const unseen = det.phase === 'candidate' || (det.phase === 'idle' && text !== det.last)
-  if (base === null && unseen && (await voiceSubmits($))) base = det.phase === 'candidate' ? det.baseline : det.last
+  if (base === null && unseen && (await voiceSubmits($))) {
+    // ↑ puts a past prompt in at once too: one sent before is recalled, not spoken.
+    if (prints.includes(promptPrint(text))) return null
+    base = det.phase === 'candidate' ? det.baseline : det.last
+  }
   if (base === null) return det.phase === 'idle' && text === det.last ? null : sentAsTyped($, 'no dictation was seen in the prompt')
   // The engine has emptied the prompt by now, so the message itself must be the prompt from before
   // the dictation with one run put in. Typing ends a dictation; a paste shows as a placeholder in
@@ -1569,6 +1558,9 @@ export const register: Register = (on, options) => {
     await step('read the bubble notes', async () => {
       kept = parseNotes(await $.store.get(SENT_KEY))
     })
+    await step('read the sent prompts', async () => {
+      prints = parsePrints(await $.store.get(PRINTS_KEY))
+    })
     await step('register /tidia', async () => {
       await $.command.register({ name: 'tidia', description: 'Tidia: status, settings, dictionary, rules, on, off', argumentHint: '[on|off|settings|set <setting> <value>|dict|rules]' })
     })
@@ -1663,6 +1655,7 @@ export const register: Register = (on, options) => {
     const context = [...(e.context ?? [])]
     if (raw !== null && ctx.cfg.attachRaw && raw !== text) context.push(rawNote(raw, edited))
     ctx.said = [{ text, raw }, ...ctx.said].slice(0, SAID_DEPTH)
+    void rememberPrints($, [e.text, text])
     await keepSession($)
     await afterSubmit($)
     // Learning waits for nothing and changes nothing in the message.
@@ -1746,7 +1739,7 @@ export const register: Register = (on, options) => {
     const v = await read($, view)
     if (v === null || e.props.hasSurvey) return next(e)
     // Without details the band only says a cleanup is on its way, so Enter can wait for it.
-    if (!ctx.cfg.debug && v.kind !== 'polishing' && v.kind !== 'sending') return next(e)
+    if (!ctx.cfg.debug && v.kind !== 'polishing' && v.kind !== 'sending' && v.kind !== 'ready') return next(e)
     return renderBand($.ui.resolve(e) as unknown as BandEls, v, ctx.locale)
   })
 }

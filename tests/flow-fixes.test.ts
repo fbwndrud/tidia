@@ -25,23 +25,7 @@ test('a slash command or bash line is never tidied', ENTER, async ($, on) => {
   expect(h.submitted[0]?.text).toBe(`/review ${RAW}`)
   expect(h.modelCalls).toBe(0)
 })
-
-test('a landed cleanup edited by hand goes out with the transcript for reference only, as a JSON string', PAUSE, async ($, on) => {
-  const h = install(on, { replies: [reply('이렇게 하면 "되네".')] })
-  await start($)
-  await dictate(h, FRAMES)
-  await h.clock.advance(1000)
-  expect(h.draft).toBe('이렇게 하면 "되네".')
-  h.draft = '이렇게 하면 "되네". 확인함'
-  await $.prompt.submit(enter(h))
-  const note = h.submitted[0]?.context?.[0] ?? ''
-  expect(note).toContain('edited by hand')
-  expect(note).toContain('for reference')
-  expect(note).toContain(JSON.stringify(RAW))
-  expect(note).not.toContain('raw transcript is what the user said')
-})
-
-test('a landed cleanup sent as it stands keeps the raw-wins note', PAUSE, async ($, on) => {
+test('a previewed cleanup sent as it stands keeps the raw-wins note', PAUSE, async ($, on) => {
   const h = install(on, { replies: [reply('이렇게 하면 되네.')] })
   await start($)
   await dictate(h, FRAMES)
@@ -49,20 +33,6 @@ test('a landed cleanup sent as it stands keeps the raw-wins note', PAUSE, async 
   await $.prompt.submit(enter(h))
   expect(h.submitted[0]?.context?.[0]).toContain('this raw transcript is what the user said')
 })
-
-test('speech after a landed cleanup is tidied on its own, and the note carries both runs', PAUSE, async ($, on) => {
-  const h = install(on, { replies: [reply('이렇게 하면 되네.'), reply('그리고 저것도 해 줘.')] })
-  await start($)
-  await dictate(h, FRAMES)
-  await h.clock.advance(1000)
-  const landed = h.draft
-  await dictate(h, [`${landed} 그리고`, `${landed} 그리고 어 저것도 해 줘`])
-  await $.prompt.submit(enter(h))
-  expect(h.submitted[0]?.text).toBe('이렇게 하면 되네. 그리고 저것도 해 줘.')
-  const note = h.submitted[0]?.context?.[0] ?? ''
-  expect(note).toContain(JSON.stringify(`${RAW} 그리고 어 저것도 해 줘`))
-})
-
 // /clear starts a new conversation: a polish of the old one must not land in it.
 test('/clear drops a polish on its way and the dictation it was for', { options: { polish_on: 'pause' } }, async ($, on) => {
   const h = install(on, { replies: [reply('이렇게 하면 되네.')] })

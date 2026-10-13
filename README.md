@@ -35,7 +35,7 @@ Dictate as usual and press Enter. The cleaned version is sent.
   | ask: "show only the tidied message" | ask: "show what Tidia did on my messages" | ask: "show my dictation above the tidied message" |
 
   With `labeled` or `full`, `· rules applied` is added when an output rule with a condition applied, and you can ask Claude to change the words (`bubble_labels`).
-- To tidy at each pause instead, so you see what Enter will send, ask Claude to "tidy my dictation at each pause".
+- To tidy at each pause instead, ask Claude to "tidy my dictation at each pause". Each time you stop speaking, the tidied version shows above the prompt and Enter sends it. It costs a model call per pause (often 2–4 per message instead of one), and the preview cannot be edited: change the prompt and it is sent as you changed it, untidied.
 - If you edit the prompt yourself before sending, the cleanup is dropped and what you see is sent. Typing is never tidied.
 - To see more of what Tidia does and why a send went out untidied, ask Claude to "show the dictation cleanup details".
 
@@ -59,7 +59,7 @@ When Claude can tell a word you dictated was misheard, it adds it to the diction
 
 - **Each cleanup is one model call**, sonnet by default: about 1,000 tokens of fixed instructions plus roughly twice the dictation's length. A short dictation uses about 1,000–1,500 tokens; a long one or several output rules, up to about 2,000. It counts toward your Claude usage like any other request. `haiku` is faster and cheaper: "use haiku for the dictation cleanup".
 - Cleaning sends the dictated text, up to 300 characters of the prompt on each side of it, spelling hints (your dictionary entries and file and identifier names from the conversation's last few messages) and your output rules through the session's own Anthropic connection. `/tidia dict build` asks first and sends only candidate words, in one call. There is no other server and no telemetry.
-- Tidia never touches audio. It keeps your last 50 tidied messages (what you said and what was sent) in its own store on your computer, so they show the same after a restart: always on the desktop, and in the terminal with `message_view` labeled or full (a very long one is kept only until the session ends). It also keeps the word corrections it learns from you (up to 200 pairs) and your dictionary; nothing else you dictate is stored.
+- Tidia never touches audio. It keeps your last 50 tidied messages (what you said and what was sent) in its own store on your computer, so they show the same after a restart: always on the desktop, and in the terminal with `message_view` labeled or full (a very long one is kept only until the session ends). It also keeps the word corrections it learns from you (up to 200 pairs), your dictionary, and a fingerprint (a 32-bit hash, not the words) of your last 200 sent prompts, so a prompt recalled with ↑ is not tidied again; nothing else you dictate is stored.
 - When a message was tidied, Claude also gets one line it does not show in your message: that sentence and your raw dictation, nothing else. For example:
 
   `[tidia] Dictated by voice and tidied before sending; where the meaning differs, this raw transcript is what the user said (JSON): "um so like can you uh check the the login page I mean the settings page"`

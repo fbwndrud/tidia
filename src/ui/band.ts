@@ -29,6 +29,8 @@ export function renderBand(els: BandEls, view: BandView, locale: Locale): Render
               Text({ children: [view.text.length > PREVIEW_CHARS ? `${view.text.slice(0, PREVIEW_CHARS)}…` : view.text] }),
             ],
           }),
+          // The prompt still holds the dictation: say which of the two Enter sends.
+          Text({ dimColor: true, children: [`   ${t(locale, 'ready_hint')}`] }),
         ],
       })
     case 'sending':

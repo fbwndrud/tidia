@@ -2,18 +2,18 @@ import { test, expect } from 'claude-code/testing'
 import { install, start, dictate, reply, BAND, enter } from './harness'
 
 // Out of the box: tidy once at Enter, in a concise tone, with the band and transcript quiet but for
-// the wait. polish_on pause tidies when the speaking stops and puts the result in the prompt.
+// the wait. polish_on pause tidies when the speaking stops and shows the result above the prompt.
 const PAUSE = { options: { polish_on: 'pause' } }
 const FRAMES = ['이렇게', '이렇게 이제', '이렇게 이제 이제 이제 되는 건가', '이렇게 이제 이제 이제 되는 건가 어 되네 되네']
 const RAW = FRAMES[3]!
 
-test('with polish_on pause a pause puts the tidied dictation in the prompt', PAUSE, async ($, on) => {
+test('with polish_on pause a pause shows the tidied dictation above the prompt', PAUSE, async ($, on) => {
   const h = install(on, { replies: [reply('이렇게 하면 되네.')] })
   await start($)
   await dictate(h, FRAMES)
   await h.clock.advance(1000)
   expect(h.modelCalls).toBe(1)
-  expect(h.draft).toBe('이렇게 하면 되네.')
+  expect(h.draft).toBe(RAW)
   await $.prompt.submit(enter(h))
   expect(h.modelCalls).toBe(1)
   expect(h.submitted[0]?.text).toBe('이렇게 하면 되네.')
@@ -84,7 +84,7 @@ test("Enter's wait says the send waits for the cleanup", async ($, on) => {
   expect(h.submitted[0]?.text).toBe('이렇게 하면 되네.')
 })
 
-test('polishing at each pause shows no preview unless details are on', PAUSE, async ($, on) => {
+test('polishing at each pause shows the preview with details off', PAUSE, async ($, on) => {
   const h = install(on, { replies: [reply('이렇게 하면 되네.')] })
   await start($)
   await dictate(h, FRAMES)
@@ -92,7 +92,7 @@ test('polishing at each pause shows no preview unless details are on', PAUSE, as
   expect(h.modelCalls).toBe(1)
   const ui = await $.ui.mount({ ...BAND, surface: 'terminal' })
   expect(await ui.find({ key: 'apply' })).toBeUndefined()
-  expect(await ui.find({ text: /✨/ })).toBeUndefined()
+  expect(await ui.find({ text: /이렇게 하면 되네\./ })).toBeDefined()
   await ui.unmount()
   await $.prompt.submit(enter(h))
   expect(h.submitted[0]?.text).toBe('이렇게 하면 되네.')

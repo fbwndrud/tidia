@@ -4,7 +4,7 @@ import { install, start, dictate, reply, BAND, enter } from './harness'
 const PAUSE = { options: { polish_on: 'pause' } }
 const ENTER = { options: { polish_on: 'enter' } }
 
-// With polish_on pause (details off): the cleanup lands in the prompt when the speaking
+// With polish_on pause (details off): the cleanup shows above the prompt when the speaking
 // stops. The desktop draws a message from the prompt box, so an Enter that comes before the
 // cleanup sends it and says so in a line of its own.
 const FRAMES = ['이렇게', '이렇게 이제', '이렇게 이제 이제 이제 되는 건가', '이렇게 이제 이제 이제 되는 건가 어 되네 되네']
@@ -21,7 +21,7 @@ test('while the cleanup is on its way the band says so, details off', PAUSE, asy
   await ui.unmount()
   h.release()
   await h.clock.advance(50)
-  expect(h.draft).toBe('이렇게 하면 되네.')
+  expect(h.draft).toBe(RAW)
 })
 
 test('on the desktop, an Enter before the cleanup lands sends it and shows it in the bubble', PAUSE, async ($, on) => {
@@ -222,4 +222,33 @@ test('with the default view the terminal keeps no notes and redraws nothing', { 
   expect(h.stored('sent-notes')).toBeUndefined()
   await (await $.ui.mount(row('다시 한번 테스트.', 'composer', 'terminal') as never)).unmount()
   expect(h.rendered.at(-1)?.props.text).toBe('다시 한번 테스트.')
+})
+
+// Manual check S1, 2026-10-13: a fill at a pause stops the microphone, so what was said after the
+// pause never reached the prompt. No surface says when a recording ends, so the cleanup only shows
+// above the prompt, and Enter sends it.
+test('pause: the cleanup shows above the prompt and the prompt keeps the dictation', PAUSE, async ($, on) => {
+  const h = install(on, { replies: [reply('이렇게 하면 되네.')] })
+  await start($)
+  await dictate(h, FRAMES)
+  await h.clock.advance(1500)
+  expect(h.draft).toBe(RAW)
+  const ui = await $.ui.mount({ ...BAND, surface: 'terminal' })
+  expect(await ui.find({ text: /이렇게 하면 되네\./ })).toBeDefined()
+  await ui.unmount()
+  await $.prompt.submit(enter(h))
+  expect(h.submitted[0]?.text).toBe('이렇게 하면 되네.')
+  expect(h.submitted[0]?.context?.[0]).toContain(RAW)
+  expect(h.modelCalls).toBe(1)
+})
+
+test('pause: speech after the preview drops it and Enter tidies the whole dictation', PAUSE, async ($, on) => {
+  const h = install(on, { replies: [reply('이렇게 하면 되네.'), reply('이렇게 하면 되네. 테스트도 돌려 줘.')] })
+  await start($)
+  await dictate(h, FRAMES)
+  await h.clock.advance(1500)
+  await dictate(h, [`${RAW} 그리고 테스트도`, `${RAW} 그리고 테스트도 돌려 줘`])
+  expect(h.draft).toBe(`${RAW} 그리고 테스트도 돌려 줘`)
+  await $.prompt.submit(enter(h))
+  expect(h.submitted[0]?.text).toBe('이렇게 하면 되네. 테스트도 돌려 줘.')
 })

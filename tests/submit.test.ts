@@ -1,5 +1,6 @@
 import { test, expect } from './kit'
 import { install, start, dictate, reply, BAND, enter, edit } from './harness'
+import { promptPrint } from '../src/recall'
 
 const FRAMES = ['이렇게', '이렇게 이제', '이렇게 이제 이제 이제 되는 건가', '이렇게 이제 이제 이제 되는 건가 어 되네 되네']
 const RAW = FRAMES[3]!
@@ -201,4 +202,38 @@ test('the per-message note carries no instructions to call Tidia tools', async (
   await $.prompt.submit(enter(h))
   expect(h.submitted[0]?.context?.[0]).not.toContain('dict_add')
   expect(h.submitted[0]?.context?.[0]).not.toContain('rule_add')
+})
+
+// Manual check 5, 2026-10-13: ↑ puts a past prompt in the box in one change, which tap mode took
+// for a transcript that landed at once, so Enter sent the recalled prompt tidied.
+const RECALLED = 'refactor the parser module please'
+
+test('tap mode: a recalled prompt sent before in this session is sent as it is', async ($, on) => {
+  const h = install(on, { replies: [reply('Refactor the parser module.')], voice: { mode: 'tap' } })
+  await start($)
+  await edit($, { origin: { kind: 'composer' }, key: { key: 'e' }, text: '', cursor: 0, start: 0, end: 0, inputText: RECALLED })
+  await $.prompt.submit(enter(h))
+  h.draft = RECALLED
+  await h.clock.advance(600)
+  await $.prompt.submit(enter(h))
+  expect(h.submitted[1]?.text).toBe(RECALLED)
+  expect(h.modelCalls).toBe(0)
+})
+
+test('tap mode: a prompt sent in an earlier session and recalled is sent as it is', async ($, on) => {
+  const h = install(on, { replies: [reply('Refactor the parser module.')], voice: { mode: 'tap' }, store: { 'sent-prints': [promptPrint(RECALLED)] } })
+  await start($)
+  h.draft = RECALLED
+  await h.clock.advance(600)
+  await $.prompt.submit(enter(h))
+  expect(h.submitted[0]?.text).toBe(RECALLED)
+  expect(h.modelCalls).toBe(0)
+})
+
+test('tap mode: a dictation that matches no sent prompt is still tidied', async ($, on) => {
+  const h = install(on, { replies: [reply('이렇게 하면 되네.')], voice: { mode: 'tap' }, store: { 'sent-prints': [promptPrint(RECALLED)] } })
+  await start($)
+  await dictate(h, [RAW])
+  await $.prompt.submit(enter(h))
+  expect(h.submitted[0]?.text).toBe('이렇게 하면 되네.')
 })

@@ -1,7 +1,7 @@
 {
   "name": "tidia",
   "displayName": "Tidia — dictation cleanup for Claude Code",
-  "version": "0.1.23",
+  "version": "0.1.24",
   "description": "Tidy dictation for AI: turns voice dictation in the Claude Code prompt into a clear, concise message before you send it, with fillers, repeats and taken-back words gone and several requests as a list; or, in minimal style, keeps your own wording.",
   "author": { "name": "JoungKyoungLyoo" },
   "homepage": "https://github.com/fbwndrud/tidia",
@@ -48,7 +48,7 @@
     "polish_on": {
       "type": "string",
       "title": "When to tidy",
-      "description": "enter: tidy once, when you press Enter (fewest model calls; the send waits a few seconds; message_view sets how the message then shows). pause: tidy when you stop speaking and put the tidied text in the prompt, so you see what Enter sends and can still change it (a model call per pause; speech that goes on cancels it).",
+      "description": "enter: tidy once, when you press Enter (fewest model calls; the send waits a few seconds; message_view sets how the message then shows). pause: tidy each time you stop speaking and show the result above the prompt, so you see what Enter sends; a model call per pause (often 2–4 per message), and the preview cannot be edited: change the prompt and it is sent as you changed it, untidied.",
       "options": ["enter", "pause"],
       "default": "enter"
     },
