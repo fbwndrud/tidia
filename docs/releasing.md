@@ -10,3 +10,5 @@ The **Publish release** workflow checks that the tag matches the manifest, that 
 For a tag whose release was missed, run the workflow manually with that existing tag. The tag must contain this workflow and the release-check script. Older tags can be published with `gh release create <tag> --verify-tag --notes-file <notes>`.
 
 The workflow validates release metadata and documentation; run the Claude Code plugin tests, strict manifest validation, settings check and typecheck locally before tagging. Never move an existing public version tag to a different commit.
+
+As of 2026-10-14, GitHub refuses to start this account's hosted runners because of a billing issue. The v0.1.27 workflow did not run its checks or publication step; the local checks passed and the release was published with `gh release create v0.1.27 --verify-tag --latest --notes-file docs/releases/v0.1.27.md`. Until the account restriction is resolved, use that manual path with the new version's notes after running the local checks.
