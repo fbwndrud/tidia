@@ -2,6 +2,8 @@
 
 `README.md` is the documentation source. The Korean README uses Korean demos and links to Korean reference documents. The other translations link to the English reference documents and show demos recorded in their own language (`docs/demo.<lang>.gif`), except Hindi, which keeps the English demos because the GIF renderer cannot shape Devanagari. All 12 READMEs explain installation, usage, voice controls, costs and stored data, limits, development and licensing. When behavior changes, update the corresponding section in every translation.
 
+Keep the one-command terminal installation, restart/status check, first-use instructions and update commands visible. Put advanced settings, detailed privacy information and developer checks in `<details>` blocks with localized `<summary>` labels. Leave a blank line after the summary and before the closing tag so GitHub renders Markdown inside it. Preserve all details when shortening the visible page, and keep the cleanup issue link visible.
+
 Interface messages are independent of the dictation language. `ui_language auto` follows Claude Code's language setting; an explicit locale overrides it, and unknown languages use English. The existing `pt` locale uses Brazilian Portuguese; its README is `README.pt-BR.md`. Traditional Chinese uses `zh-TW`, including automatic selection for `zh-Hant` and the TW/HK/MO regions. An explicit script takes precedence over the region.
 
 To add a language:

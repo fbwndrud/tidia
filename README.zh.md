@@ -2,11 +2,13 @@
 
 **为 AI 整理口述文字。** 随意说，清楚发。
 
+[![Release](https://img.shields.io/github/v/release/fbwndrud/tidia)](https://github.com/fbwndrud/tidia/releases/latest) [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.296%2B-D97757)](https://code.claude.com/) [![MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 <!-- languages:start -->
 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · 简体中文 · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Deutsch](README.de.md) · [Français](README.fr.md) · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [Bahasa Indonesia](README.id.md)
 <!-- languages:end -->
 
-![包含口头语和自我纠正的语音输入被整理为清晰的消息](docs/demo.zh.gif)
+[安装](#install) · [使用](#use) · [与 Claude 对话](#voice-settings) · [费用与隐私](#privacy) · [更多信息](#help)
 
 Tidia（读作 *TID-ee-a*）在发送前，整理 Claude Code 内置语音输入写入提示框的文字。支持终端的 `/voice` 和桌面应用的麦克风按钮。
 
@@ -14,18 +16,68 @@ Tidia（读作 *TID-ee-a*）在发送前，整理 Claude Code 内置语音输入
 - 将按发音转写的英文术语还原为英文拼写（“리액트” → React，“깃 푸시” → git push），并按实际写法拼写对话中的文件和名称。
 - 保留你的意思，不回答、翻译或概括。整理失败或结果不合适时，发送原文。
 
+<a id="install"></a>
+
 ## 安装
 
+需要 **Claude Code 2.1.296 或更高版本**。已在 macOS 上测试；Linux 和 Windows 尚未测试。
+
+在**终端**中运行以下一行，而不是在 Claude 对话中：
+
+```bash
+claude plugin install tidia --marketplace fbwndrud/tidia
 ```
+
+为当前用户的所有项目安装。重启 Claude Code，或在桌面应用中新建 Code 会话，再用 `/tidia` 确认已开启。无需额外的 API 密钥。
+
+<details>
+<summary>其他安装方式</summary>
+
+在 Claude Code 对话中逐行运行，然后选择 **Install for you**：
+
+```text
 /plugin marketplace add fbwndrud/tidia
 /plugin install tidia@tidia
 ```
 
-需要 Claude Code 2.1.296 或更高版本。已在 macOS 上测试；Linux 和 Windows 尚未测试。不安装也可从克隆目录试用：`claude --plugin-dir /path/to/tidia`。
+仅在当前仓库使用：在终端安装命令后加 `--scope local`。从克隆目录试用：`claude --plugin-dir /path/to/tidia`。
+
+[Claude Code · plugin installation](https://code.claude.com/docs/en/plugins/install#add-a-marketplace-and-install-in-one-command)
+
+</details>
+
+### 更新
+
+在终端运行，然后重启 Claude Code：
+
+```bash
+claude plugin marketplace update tidia
+claude plugin update tidia@tidia
+```
+
+自动更新：`/plugin` → **Marketplaces** → **tidia** → **Enable auto-update**。第三方市场默认不开启自动更新。
+
+<details>
+<summary>卸载</summary>
+
+```bash
+claude plugin uninstall tidia@tidia
+```
+
+</details>
+
+<a id="use"></a>
 
 ## 使用
 
+首次使用：在终端开启 `/voice`，或点击桌面应用 **Code** 页的麦克风。说话后发送消息即可，无需额外设置。
+
 照常口述，按 Enter 后发送整理好的版本。
+
+![包含口头语和自我纠正的语音输入被整理为清晰的消息](docs/demo.zh.gif)
+
+<details>
+<summary>整理风格、消息显示与暂停预览</summary>
 
 - 按 Enter 时只整理一次，每条消息调用一次模型，发送会等待几秒。说话中途停顿不会触发整理。
 - 默认 `polish` 改写为简短清晰的消息，多个请求写成列表。`minimal` 只去掉口头语，保留你的措辞。可以告诉 Claude：“保留我的原话，只去掉口头语。”
@@ -41,6 +93,10 @@ Tidia（读作 *TID-ee-a*）在发送前，整理 Claude Code 内置语音输入
 - 发送前手动编辑输入框会丢弃整理结果。键盘输入的文字从不整理。
 - 说“显示语音整理的详细信息”，可查看通知和未整理就发送的原因。
 
+</details>
+
+<a id="voice-settings"></a>
+
 ## 与 Claude 对话
 
 不必逐项手动设置，可以直接说：
@@ -51,30 +107,56 @@ Tidia（读作 *TID-ee-a*）在发送前，整理 Claude Code 内置语音输入
 - “总是把口述写成编号列表，最后加一句总结。”／“用普通句子写。”
 - “用礼貌的语气。”／“我的消息要简短直接。”
 
+<details>
+<summary>输出规则与词典权限</summary>
+
 语气和格式都属于输出规则，可以始终应用，也可以只在满足条件时应用。七条初始规则（bug 报告、功能请求、评审、任务列表，以及礼貌、随意或保留口述语气）默认关闭，直到你要求启用。
 
 Claude 能确定某个词被错误识别时，会自行加入词典并用一行通知你；说“撤销”可删除。修改不是由 Claude 添加的词条时会先询问。`dict_approval ask` 要求每次修改词典都先询问。修改规则和设置也会询问，除非 Claude Code 的权限模式已允许 Tidia 工具。旧版设置会在升级后的首次启动时迁移。
 
 ![通过语音请求 bug 报告规则，批准后应用到下一次口述](docs/demo-settings.zh.gif)
 
+</details>
+
+<a id="privacy"></a>
+
 ## 费用与隐私
+
+每次整理通过现有的 Claude 连接调用一次模型，默认在发送时整理一次。不处理音频、不收集遥测；最近的原文和设置保存在本机。
+
+<details>
+<summary>令牌费用、存储数据与传给 Claude 的信息</summary>
 
 - **每次整理调用一次模型**，默认 sonnet。固定指令约 1,000 个 token，加上约两倍口述长度；短输入约 1,000–1,500 个 token，长输入或多条规则约 2,000 个。计入正常 Claude 用量。说“整理时用 haiku”可降低延迟和费用。
 - 口述文字、口述部分前后各最多 300 个字符、词典和最近对话中的文件及标识符拼写提示、输出规则，经当前会话的 Anthropic 连接发送。`/tidia dict build` 先询问，只将候选词发送一次。没有其他服务器或遥测。
 - 不处理音频。为恢复显示，会在本机保存最近 50 条整理消息的原文与发送文字：桌面始终使用，终端在 `labeled` 或 `full` 时使用。特别长的消息仅在会话期间保留。还保存最多 200 对学习到的词语纠正、词典，以及最近 200 条已发送提示的指纹（32 位哈希，不是文字），避免用 ↑ 调回的提示再次整理。不保存其他口述。
 - Claude 会收到一行不显示在你的消息中的内容：固定说明和 JSON 格式的口述原文。如果你手动编辑了结果，会说明消息是你的真实意图，原文只作参考。键盘输入和未改变的口述不附加这行。`attach_raw off` 可关闭。每个会话及压缩后各一次，用简短指南说明如何阅读及何时添加词语或规则。
 
+</details>
+
+<a id="help"></a>
+
 ## 更多信息
 
 英文[架构说明](docs/architecture.md)和[参考文档](docs/reference.md)介绍工作原理、命令、设置、词典与输出规则。
+
+<details>
+<summary>兼容性、语言与限制</summary>
 
 **限制。** VS Code 扩展没有提示带，无法显示调试详情。少于三个词的输入保留原样。“再短一点”“发送”等口述命令作为文字整理，不执行。语音识别丢失语调，没有疑问词的问题可能被整理成陈述；Claude 会收到原文并被要求检查。
 
 **语言。** README 和界面消息支持 12 种语言。`ui_language auto` 跟随 Claude Code 的语言设置；`/tidia set ui_language zh` 指定简体中文，`/tidia set ui_language zh-TW` 指定繁体中文。不支持的语言使用英语。整理本身适用于 Claude 能书写的任何语言。语言专项的意义检查和评估集仍覆盖八种语言：韩语、英语、日语、中文、西班牙语、德语、法语、葡萄牙语（sonnet 一次运行，164 例中 162 例通过）。新增翻译并不扩大这项验证。
 
+</details>
+
 **整理有误？** 请附上说出的内容和发送的内容[提交问题](https://github.com/fbwndrud/tidia/issues/new?template=cleanup.yml)。每个报告都会成为测试用例。
 
+<a id="development"></a>
+
 ## 开发
+
+<details>
+<summary>开发检查与评估</summary>
 
 ```bash
 claude plugin test .
@@ -85,6 +167,10 @@ npx -y -p typescript@5.6.3 tsc -p .
 类型检查读取 `.claude-plugin/types/` 中的引擎声明，首次用 `claude --plugin-dir .` 加载时生成。用 `bun scripts/check-settings.ts` 检查设置一致性，用 `python3 scripts/check-translations.py` 检查翻译链接。
 
 `eval/` 包含八种语言的 164 条口述：AI 编写脚本，Mac 语音合成朗读，再由 Mac 语音识别转写。`python3 -I eval/run.py` 用真实模型整理。[EVAL.md](EVAL.md)说明方法和局限，[手动检查](docs/manual-checks.md)列出麦克风测试。
+
+</details>
+
+<a id="license"></a>
 
 ## 许可证
 

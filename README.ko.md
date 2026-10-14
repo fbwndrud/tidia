@@ -2,11 +2,13 @@
 
 **막 말해도, 티 없이.** Tidia(티디아)는 tidy dictation for AI, 즉 AI에게 보낼 받아쓰기를 깔끔하게 정리해 준다는 뜻입니다.
 
+[![Release](https://img.shields.io/github/v/release/fbwndrud/tidia)](https://github.com/fbwndrud/tidia/releases/latest) [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.296%2B-D97757)](https://code.claude.com/) [![MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 <!-- languages:start -->
 [English](README.md) · 한국어 · [日本語](README.ja.md) · [简体中文](README.zh.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Deutsch](README.de.md) · [Français](README.fr.md) · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [Bahasa Indonesia](README.id.md)
 <!-- languages:end -->
 
-![군말과 잘못 받아써진 용어가 섞인 받아쓰기가 깔끔한 메시지로 전송되는 모습](docs/demo.ko.gif)
+[설치](#install) · [사용법](#use) · [Claude에게 말하기](#voice-settings) · [비용과 개인정보](#privacy) · [더 보기](#help)
 
 Tidia는 Claude Code 내장 받아쓰기로 입력창에 들어온 말을, 보내기 전에 정리해 줍니다. 터미널의 `/voice`와 데스크톱 앱의 마이크 버튼 모두에서 동작합니다.
 
@@ -14,18 +16,72 @@ Tidia는 Claude Code 내장 받아쓰기로 입력창에 들어온 말을, 보�
 - 음성 인식이 소리 나는 대로 적은 영어 용어를 영어로 되돌리고("리액트" → React, "깃 푸시" → git push), 대화에 나온 파일과 이름은 실제 표기대로 씁니다.
 - 말한 내용은 그대로 둡니다. 대답하거나 번역하거나 요약하지 않고, 정리가 실패하거나 이상하면 원문을 보냅니다.
 
+| 이렇게 말하면 | 이렇게 보내요 |
+|---|---|
+| “음 로그인 페이지 아니 설정 페이지 확인하고 어 테스트도 추가해 줘.” | “설정 페이지를 확인하고 테스트도 추가해 줘.” |
+
+<a id="install"></a>
+
 ## 설치
 
+**Claude Code 2.1.296 이상**이 필요합니다. macOS에서 확인했으며 Linux·Windows는 아직 확인하지 않았습니다.
+
+Claude 대화창이 아닌 **터미널**에 아래 한 줄을 붙여 넣으세요.
+
+```bash
+claude plugin install tidia --marketplace fbwndrud/tidia
 ```
+
+내 계정의 모든 프로젝트에 설치됩니다. Claude Code를 다시 시작하거나 데스크톱에서 새 Code 세션을 연 뒤, `/tidia`로 켜져 있는지 확인하세요. 별도의 API 키나 서비스 가입은 필요 없습니다.
+
+<details>
+<summary>다른 설치 방법</summary>
+
+Claude Code 대화창에서 아래 명령을 **한 줄씩** 실행하고 **내 계정에 설치(Install for you)**를 선택하세요.
+
+```text
 /plugin marketplace add fbwndrud/tidia
 /plugin install tidia@tidia
 ```
 
-Claude Code 2.1.296 이상이 필요합니다. macOS에서 확인했고, Linux와 Windows는 아직 확인하지 않았습니다. 설치 없이 클론한 폴더로 써 보려면 `claude --plugin-dir /path/to/tidia`.
+현재 저장소에서만 쓰려면 터미널 설치 명령 끝에 `--scope local`을 붙이세요. 클론한 폴더를 설치 없이 시험하려면 `claude --plugin-dir /path/to/tidia`를 사용하세요.
+
+[Claude Code · plugin installation](https://code.claude.com/docs/en/plugins/install#add-a-marketplace-and-install-in-one-command)
+
+</details>
+
+### 업데이트
+
+터미널에서 아래 명령을 실행한 뒤 Claude Code를 다시 시작하세요.
+
+```bash
+claude plugin marketplace update tidia
+claude plugin update tidia@tidia
+```
+
+자동 업데이트는 `/plugin` → **Marketplaces** → **tidia** → **Enable auto-update**에서 켤 수 있습니다. 외부 마켓플레이스는 기본적으로 자동 업데이트가 꺼져 있습니다.
+
+<details>
+<summary>삭제</summary>
+
+```bash
+claude plugin uninstall tidia@tidia
+```
+
+</details>
+
+<a id="use"></a>
 
 ## 사용법
 
+처음에는 터미널에서 `/voice`를 켜거나, 데스크톱 앱의 **Code** 탭에서 마이크를 누르세요. 말하고 메시지를 보내면 자동으로 정리됩니다. 따로 설정할 필요 없습니다.
+
 평소처럼 받아쓰고 Enter를 누르면 정리본이 나갑니다.
+
+![군말과 잘못 받아써진 용어가 섞인 받아쓰기가 깔끔한 메시지로 전송되는 모습](docs/demo.ko.gif)
+
+<details>
+<summary>정리 스타일·메시지 표시·멈출 때 미리보기</summary>
 
 - Enter를 누를 때 한 번 정리합니다. 메시지 하나에 모델 호출 한 번입니다. 보내기가 몇 초 기다립니다. 말하는 중간에 잠깐 멈춰도 정리하지 않습니다.
 - 스타일은 둘입니다. 기본인 `polish`는 짧고 분명한 메시지로 다듬고, 여러 가지를 부탁하면 목록으로 씁니다. `minimal`은 군말만 빼고 내 표현을 그대로 둡니다. Claude에게 "내 말은 그대로 두고 군말만 빼 줘"라고 하세요.
@@ -41,6 +97,10 @@ Claude Code 2.1.296 이상이 필요합니다. macOS에서 확인했고, Linux�
 - 보내기 전에 입력창을 직접 고치면 정리본은 버리고 보이는 그대로 보냅니다. 키보드로 친 글은 정리하지 않습니다.
 - Tidia가 하는 일과 정리 없이 나간 이유를 더 보려면 "받아쓰기 정리 자세히 보여 줘"라고 하세요.
 
+</details>
+
+<a id="voice-settings"></a>
+
 ## Claude에게 말하기
 
 키보드로 하나하나 설정할 필요가 없습니다. Claude에게 말하세요.
@@ -51,13 +111,25 @@ Claude Code 2.1.296 이상이 필요합니다. macOS에서 확인했고, Linux�
 - "받아쓰기는 항상 번호 목록으로, 끝에 한 줄 요약 붙여서 정리해 줘." / "받아쓰기는 목록 말고 문장으로 보내 줘."
 - "받아쓰기는 존댓말로 정리해 줘." / "내 메시지는 짧고 단정한 말투로 해 줘."
 
+<details>
+<summary>출력 규칙과 사전 변경 권한</summary>
+
 어투부터 버그 보고 형식까지, 받아쓴 메시지를 어떻게 쓸지는 모두 출력 규칙 하나의 목록에 들어갑니다. 규칙마다 항상 적용하거나, 조건이 맞을 때만 적용합니다. 기본 규칙 7개(버그 보고, 기능 요청, 리뷰, 작업 목록, 존댓말·반말·말한 말투 그대로)는 말하기 전까지 꺼져 있습니다.
 
 받아쓴 말에서 잘못 알아들은 단어가 확실하면 Claude가 알아서 사전에 넣고 한 줄로 알려 줍니다. "취소해"라고 하면 지웁니다. Claude가 넣지 않은 항목은 묻고 나서만 바꾸고, "사전 바꾸기 전에 물어봐"(`dict_approval ask`)라고 하면 사전 변경을 모두 먼저 묻습니다. 규칙과 설정을 바꿀 때는 먼저 묻습니다. 단, Claude Code 권한 모드가 Tidia 도구를 이미 허용했다면 묻지 않습니다. 이전 버전에서 저장한 설정은 업그레이드 후 첫 시작 때 옮겨집니다.
 
 ![Claude에게 말로 버그 보고 규칙을 부탁하고 허용한 뒤, 버그 얘기를 받아쓰면 항목별로 정리되어 나가는 모습](docs/demo-settings.ko.gif)
 
+</details>
+
+<a id="privacy"></a>
+
 ## 비용과 개인정보
+
+정리할 때마다 기존 Claude 연결로 모델을 한 번 호출합니다. 기본은 받아쓴 메시지를 보낼 때 한 번입니다. 오디오를 처리하거나 원격 수집하지 않으며, 최근 원문과 설정은 이 컴퓨터에 저장합니다.
+
+<details>
+<summary>토큰 비용·저장하는 내용·Claude에게 전달되는 정보</summary>
 
 - **정리 한 번에 모델 호출 한 번**, 기본 sonnet입니다. 고정 지침 약 1,000토큰에 받아쓴 내용 길이의 약 두 배가 더해집니다. 짧은 받아쓰기는 약 1,000~1,500토큰, 길거나 출력 규칙이 여럿이면 2,000토큰 안팎까지 씁니다. 다른 요청처럼 Claude 사용량에 포함됩니다. 더 빠르고 저렴하게 쓰려면 "받아쓰기 정리는 haiku로 해 줘".
 - 정리할 때 받아쓴 글, 받아쓴 부분 앞뒤로 각각 입력창 글 최대 300자, 표기 힌트(사전 항목과 최근 대화에 나온 파일·식별자 이름), 출력 규칙을 세션이 쓰는 Anthropic 연결로 보냅니다. `/tidia dict build`는 먼저 묻고, 후보 단어만 한 번의 호출로 보냅니다. 그 밖의 서버나 원격 수집은 없습니다.
@@ -68,9 +140,23 @@ Claude Code 2.1.296 이상이 필요합니다. macOS에서 확인했고, Linux�
 
   (뜻: 음성으로 받아써서 보내기 전에 정리함. 뜻이 다른 곳은 이 원문이 사용자가 실제로 한 말.) 보내기 전에 정리본을 직접 고쳤다면, 메시지가 내가 뜻한 것이고 원문은 참고용이라고 적힙니다. 타이핑한 메시지와 Tidia가 바꾸지 않은 받아쓰기에는 붙지 않습니다. `attach_raw off`로 끌 수 있습니다. 세션마다 한 번(압축 뒤에도 한 번), 이 줄을 읽는 법과 잘못 알아들은 단어나 규칙을 언제 넣을지 짧게 안내합니다.
 
+</details>
+
+<a id="help"></a>
+
 ## 더 보기
 
+| 이런 경우에는 | 이렇게 확인하세요 |
+|---|---|
+| `claude`가 없거나 `--marketplace`를 인식하지 못해요 | [Claude Code 설치·업데이트 안내](https://code.claude.com/docs/en/setup)를 따라 설치하고, `claude --version`이 2.1.296 이상인지 확인하세요. |
+| 설치했는데 `/tidia`가 없어요 | Claude Code를 다시 시작하고, 터미널의 `claude plugin list`에서 `tidia@tidia`가 켜져 있는지 확인하세요. |
+| 받아쓰기가 그대로 나가요 | `/tidia`로 켜져 있는지 확인하세요. 세 단어 미만·직접 고친 글·이미 깔끔한 글은 그대로 보낼 수 있습니다. Claude에게 “받아쓰기 정리 자세히 보여 줘”라고 하면 이유를 볼 수 있습니다. |
+
+
 동작 원리는 그림과 함께 [docs/architecture.ko.md](docs/architecture.ko.md)에 있습니다. 밴드 키, 명령, 모든 설정, 사전, 출력 규칙은 [docs/reference.ko.md](docs/reference.ko.md)에 있습니다.
+
+<details>
+<summary>호환성·지원 언어·제약</summary>
 
 **한계.** VS Code 확장에는 밴드가 없어서 debug 표시가 나오지 않습니다. 세 단어 미만의 받아쓰기는 그대로 둡니다. "더 짧게", "보내" 같은 음성 명령은 따르지 않고 글로 정리합니다. 음성 인식은 억양을 남기지 않아서, 물음표 없이 말한 질문이 단정문으로 정리될 수 있습니다. Claude는 원문을 함께 받고 확인하도록 안내받습니다.
 
@@ -78,9 +164,16 @@ Claude Code 2.1.296 이상이 필요합니다. macOS에서 확인했고, Linux�
 
 정리 자체는 Claude가 쓰는 모든 언어에서 동작합니다. 번역 추가로 언어별 정리 검증 범위가 늘어난 것은 아닙니다. 의미가 뒤집히거나 요청 대신 답이 나간 경우를 잡는 검사와 골든셋은 8개 언어를 다룹니다: 한국어, 영어, 일본어, 중국어, 스페인어, 독일어, 프랑스어, 포르투갈어(164개 중 162개 통과, sonnet 1회 실행).
 
+</details>
+
 **정리가 이상한가요?** 말한 것과 보내진 것을 적어 [이슈를 열어 주세요](https://github.com/fbwndrud/tidia/issues/new?template=cleanup.yml). 제보 하나가 테스트 케이스 하나가 됩니다.
 
+<a id="development"></a>
+
 ## 개발
+
+<details>
+<summary>개발용 검사와 평가</summary>
 
 ```bash
 claude plugin test .
@@ -94,11 +187,15 @@ claude plugin validate --strict .
 npx -y -p typescript@5.6.3 tsc -p .
 ```
 
-설정 일치 여부는 `bun scripts/check-settings.ts`, 번역 README의 링크와 명령어는 `python3 scripts/check-translations.py`로 확인합니다. 언어를 추가하거나 문서를 바꿀 때는 [번역 유지 관리 안내](docs/translations.md)(영문)를 참고하세요.
+설정 일치 여부는 `bun scripts/check-settings.ts`, 번역 README의 링크와 명령어는 `python3 scripts/check-translations.py`로 확인합니다. 언어를 추가하거나 문서를 바꿀 때는 [번역 유지 관리 안내](docs/translations.md)와 [릴리즈 게시 안내](docs/releasing.md)(영문)를 참고하세요.
 
 타입 검사는 `.claude-plugin/types/`의 엔진 선언을 읽습니다. 이 폴더는 Claude Code가 mod를 처음 불러올 때(`claude --plugin-dir .`) 만듭니다.
 
 `eval/`에는 8개 언어의 받아쓰기 164개 골든셋(AI가 쓴 문장을 Mac 음성 합성으로 읽혀 Mac 음성 인식으로 받아쓴 것)과, 실제 모델로 정리해서 결과를 확인하는 실행기(`python3 -I eval/run.py`)가 있습니다. 평가 방법, 최신 결과, 결과가 보여 주지 못하는 것은 [EVAL.md](EVAL.md)(영문)에 있습니다. `docs/manual-checks.md`에는 자동 테스트로 다룰 수 없는 마이크 확인 항목이 있습니다.
+
+</details>
+
+<a id="license"></a>
 
 ## 라이선스
 

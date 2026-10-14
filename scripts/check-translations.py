@@ -23,8 +23,12 @@ LANGUAGES = [
 ]
 START, END = '<!-- languages:start -->', '<!-- languages:end -->'
 COMMANDS = [
+    'claude plugin install tidia --marketplace fbwndrud/tidia',
     '/plugin marketplace add fbwndrud/tidia',
     '/plugin install tidia@tidia',
+    'claude plugin marketplace update tidia',
+    'claude plugin update tidia@tidia',
+    'claude plugin uninstall tidia@tidia',
     'claude plugin test .',
     'claude plugin validate --strict .',
     'npx -y -p typescript@5.6.3 tsc -p .',
@@ -74,12 +78,20 @@ def main():
             problems.append(f'{filename}: expected all seven README sections')
         if text.count('```') % 2:
             problems.append(f'{filename}: unclosed code fence')
+        if text.count('<details>') != text.count('</details>'):
+            problems.append(f'{filename}: unclosed details block')
+        if text.count('<details>') != text.count('<summary>') or text.count('<summary>') != text.count('</summary>'):
+            problems.append(f'{filename}: details blocks need one summary each')
         for command in COMMANDS:
             if command not in text:
                 problems.append(f'{filename}: missing command {command}')
         # All translations live at the repo root, so local links use the same base.
         for link in re.findall(r'\[[^\]]*\]\(([^)]+)\)', text):
-            if re.match(r'^[a-z][a-z0-9+.-]*:', link, re.I) or link.startswith('#'):
+            if link.startswith('#'):
+                if f'<a id="{link[1:]}"></a>' not in text:
+                    problems.append(f'{filename}: missing navigation anchor {link}')
+                continue
+            if re.match(r'^[a-z][a-z0-9+.-]*:', link, re.I):
                 continue
             target = link.split('#', 1)[0]
             if target and not (path.parent / target).exists():

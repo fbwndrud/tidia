@@ -2,11 +2,13 @@
 
 **Une dictée claire pour l’IA.** Parlez librement. Envoyez un texte net.
 
+[![Release](https://img.shields.io/github/v/release/fbwndrud/tidia)](https://github.com/fbwndrud/tidia/releases/latest) [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.296%2B-D97757)](https://code.claude.com/) [![MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 <!-- languages:start -->
 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Deutsch](README.de.md) · Français · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [Bahasa Indonesia](README.id.md)
 <!-- languages:end -->
 
-![Une dictée avec hésitations et corrections devient un message clair](docs/demo.fr.gif)
+[Installation](#install) · [Utilisation](#use) · [Parler à Claude](#voice-settings) · [Coût et confidentialité](#privacy) · [Pour aller plus loin](#help)
 
 Tidia (*TID-ee-a*) nettoie le texte saisi par la dictée intégrée de Claude Code avant son envoi. Il fonctionne avec `/voice` dans le terminal et le bouton du microphone de l’application de bureau.
 
@@ -14,18 +16,68 @@ Tidia (*TID-ee-a*) nettoie le texte saisi par la dictée intégrée de Claude Co
 - Rétablit l’orthographe anglaise des termes transcrits phonétiquement (« 리액트 » → React, « 깃 푸시 » → git push) et l’écriture exacte des fichiers et noms de la conversation.
 - Préserve le contenu. Il ne répond pas, ne traduit pas et ne résume pas. Si le nettoyage échoue ou semble incorrect, le texte original est envoyé.
 
+<a id="install"></a>
+
 ## Installation
 
+Nécessite **Claude Code 2.1.296 ou plus récent**. Testé sur macOS ; Linux et Windows ne sont pas encore testés.
+
+Exécutez cette ligne dans le **terminal**, hors de la conversation avec Claude :
+
+```bash
+claude plugin install tidia --marketplace fbwndrud/tidia
 ```
+
+Installation pour votre compte dans tous les projets. Redémarrez Claude Code ou ouvrez une nouvelle session Code dans l’application de bureau, puis vérifiez avec `/tidia`. Aucune clé API supplémentaire nécessaire.
+
+<details>
+<summary>Autres méthodes d’installation</summary>
+
+Dans une conversation Claude Code, exécutez chaque ligne séparément et choisissez **Install for you** :
+
+```text
 /plugin marketplace add fbwndrud/tidia
 /plugin install tidia@tidia
 ```
 
-Nécessite Claude Code 2.1.296 ou plus récent. Testé sur macOS ; Linux et Windows ne sont pas encore testés. Pour essayer un clone sans l’installer : `claude --plugin-dir /path/to/tidia`.
+Pour ce dépôt uniquement, ajoutez `--scope local` à la commande du terminal. Pour essayer un clone : `claude --plugin-dir /path/to/tidia`.
+
+[Claude Code · plugin installation](https://code.claude.com/docs/en/plugins/install#add-a-marketplace-and-install-in-one-command)
+
+</details>
+
+### Mettre à jour
+
+Exécutez dans le terminal, puis redémarrez Claude Code :
+
+```bash
+claude plugin marketplace update tidia
+claude plugin update tidia@tidia
+```
+
+Mises à jour automatiques : `/plugin` → **Marketplaces** → **tidia** → **Enable auto-update**. Elles sont désactivées par défaut pour les marchés tiers.
+
+<details>
+<summary>Désinstaller</summary>
+
+```bash
+claude plugin uninstall tidia@tidia
+```
+
+</details>
+
+<a id="use"></a>
 
 ## Utilisation
 
+Pour commencer, activez `/voice` dans le terminal ou cliquez sur le microphone dans l’onglet **Code** de l’application de bureau. Parlez et envoyez ; aucun réglage nécessaire.
+
 Dictez normalement, puis appuyez sur Enter pour envoyer la version nettoyée.
+
+![Une dictée avec hésitations et corrections devient un message clair](docs/demo.fr.gif)
+
+<details>
+<summary>Styles, affichage et aperçu aux pauses</summary>
 
 - Le nettoyage a lieu une seule fois, à l’envoi : un appel au modèle par message. L’envoi attend quelques secondes. Une pause pendant la dictée ne lance aucun nettoyage.
 - `polish`, par défaut, reformule en un message court et clair, avec une liste pour plusieurs demandes. `minimal` retire seulement les hésitations et conserve vos mots : demandez « garde mes mots et retire seulement les hésitations ».
@@ -41,6 +93,10 @@ Dictez normalement, puis appuyez sur Enter pour envoyer la version nettoyée.
 - Toute modification manuelle du champ annule le nettoyage. Le texte tapé au clavier n’est jamais nettoyé.
 - Demandez « affiche les détails du nettoyage de la dictée » pour voir les notifications et les raisons d’un envoi sans nettoyage.
 
+</details>
+
+<a id="voice-settings"></a>
+
 ## Parler à Claude
 
 Vous pouvez tout demander par la voix :
@@ -51,30 +107,56 @@ Vous pouvez tout demander par la voix :
 - « Envoie toujours ma dictée en liste numérotée, puis un résumé d’une ligne. » / « Utilise des phrases simples. »
 - « Utilise un ton poli. » / « Mes messages doivent être courts et directs. »
 
+<details>
+<summary>Règles de sortie et permissions du dictionnaire</summary>
+
 Le ton et la présentation sont des règles de sortie, appliquées toujours ou sous condition. Les sept règles de départ —bugs, fonctionnalités, revues, tâches et tons poli, familier ou tel que parlé— restent désactivées jusqu’à votre demande.
 
 Lorsque Claude identifie un mot mal reconnu, il l’ajoute au dictionnaire et vous prévient ; « annule ça » le retire. Modifier une entrée qu’il n’a pas ajoutée nécessite votre accord. `dict_approval ask` impose une question avant chaque changement. Les règles et réglages demandent aussi votre accord, sauf si le mode de permissions de Claude Code autorise déjà les outils de Tidia. Les anciens réglages sont migrés au premier démarrage après une mise à jour.
 
 ![Une règle de rapport de bug demandée oralement et appliquée après autorisation](docs/demo-settings.fr.gif)
 
+</details>
+
+<a id="privacy"></a>
+
 ## Coût et confidentialité
+
+Chaque nettoyage utilise un appel au modèle via votre connexion Claude, par défaut au moment de l’envoi. Aucun traitement audio ni télémétrie ; les transcriptions récentes et réglages restent en stockage local.
+
+<details>
+<summary>Coût en tokens, données conservées et informations reçues par Claude</summary>
 
 - **Un appel au modèle par nettoyage**, avec sonnet par défaut : environ 1 000 tokens d’instructions fixes, plus environ deux fois la longueur de la dictée. Une dictée courte consomme 1 000–1 500 tokens ; une longue ou plusieurs règles, environ 2 000. Cela compte dans votre usage de Claude. Demandez « utilise haiku pour le nettoyage » pour gagner en vitesse et réduire le coût.
 - La dictée, jusqu’à 300 caractères du champ de chaque côté, les indices d’orthographe du dictionnaire et des derniers messages, et les règles passent par la connexion Anthropic de la session. `/tidia dict build` demande votre accord et transmet uniquement des mots candidats en un appel. Aucun autre serveur ni télémétrie.
 - Tidia ne traite pas l’audio. Il conserve localement les 50 derniers messages nettoyés, dictée et texte envoyé, pour restaurer l’affichage : toujours sur le bureau, et dans le terminal avec `labeled` ou `full`. Les très longs messages ne restent que pendant la session. Il conserve aussi jusqu’à 200 paires de corrections, le dictionnaire et les empreintes des 200 derniers messages envoyés —des hashes de 32 bits, pas les textes— pour éviter un nouveau nettoyage après rappel avec ↑. Aucune autre dictée n’est stockée.
 - Claude reçoit une ligne invisible dans votre message, contenant une explication fixe et la dictée originale en JSON. Si vous avez modifié le résultat, elle précise que le message exprime votre intention et que la dictée est une référence. Les messages tapés et les dictées inchangées n’en reçoivent pas. `attach_raw off` la désactive. Une courte aide est envoyée une fois par session et après une compaction pour interpréter ces lignes et gérer les mots et règles.
 
+</details>
+
+<a id="help"></a>
+
 ## Pour aller plus loin
 
 L’[architecture](docs/architecture.md) et la [référence](docs/reference.md), en anglais, présentent le fonctionnement, les commandes, les réglages, le dictionnaire et les règles.
+
+<details>
+<summary>Compatibilité, langues et limites</summary>
 
 **Limites.** L’extension VS Code n’a pas de bande et n’affiche pas les détails de débogage. Les dictées de moins de trois mots restent intactes. « Fais plus court » ou « envoie » sont nettoyés comme du texte, pas exécutés. L’intonation étant perdue, une question sans mot interrogatif peut devenir une affirmation ; Claude reçoit l’original pour vérifier.
 
 **Langues.** Les README et les messages de l’interface existent en 12 langues. `ui_language auto` suit la langue de Claude Code ; `/tidia set ui_language fr` choisit le français. Les langues non prises en charge utilisent l’anglais. Le nettoyage fonctionne dans toute langue écrite par Claude. Les contrôles spécifiques du sens et le jeu d’évaluation couvrent toujours huit langues : coréen, anglais, japonais, chinois, espagnol, allemand, français et portugais (162 cas sur 164 lors d’un essai avec sonnet). Les nouvelles traductions n’étendent pas cette validation.
 
+</details>
+
 **Un nettoyage incorrect ?** [Ouvrez un ticket](https://github.com/fbwndrud/tidia/issues/new?template=cleanup.yml) avec ce que vous avez dit et ce qui a été envoyé. Chaque signalement devient un cas de test.
 
+<a id="development"></a>
+
 ## Développement
+
+<details>
+<summary>Vérifications et évaluation pour le développement</summary>
 
 ```bash
 claude plugin test .
@@ -85,6 +167,10 @@ npx -y -p typescript@5.6.3 tsc -p .
 Le contrôle de types lit les déclarations du moteur dans `.claude-plugin/types/`, créées au premier chargement avec `claude --plugin-dir .`. Vérifiez aussi les réglages avec `bun scripts/check-settings.ts` et les liens des traductions avec `python3 scripts/check-translations.py`.
 
 `eval/` contient 164 dictées en huit langues, écrites par IA, lues par la synthèse vocale de macOS et transcrites par sa reconnaissance vocale. `python3 -I eval/run.py` les nettoie avec le vrai modèle. [EVAL.md](EVAL.md) décrit la méthode et ses limites ; les [vérifications manuelles](docs/manual-checks.md) couvrent le microphone.
+
+</details>
+
+<a id="license"></a>
 
 ## Licence
 
