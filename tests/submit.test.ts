@@ -237,3 +237,79 @@ test('tap mode: a dictation that matches no sent prompt is still tidied', async 
   await $.prompt.submit(enter(h))
   expect(h.submitted[0]?.text).toBe('이렇게 하면 되네.')
 })
+
+// Demo recording, 2026-10-14: macOS `say` read the same sentence each take and speech recognition
+// wrote the same transcript, so the second take matched the first one's print and went out raw.
+// The voice puts the transcript in and sends it before a poll sees it; ↑ and Enter are two key
+// presses, and the poll sees what ↑ put in.
+test('tap mode: the same words dictated again are tidied again', async ($, on) => {
+  const h = install(on, { replies: [reply('이렇게 하면 되네.'), reply('이렇게 하면 되네.')], voice: { mode: 'tap' } })
+  await start($)
+  await dictate(h, [RAW])
+  await $.prompt.submit(enter(h))
+  await h.clock.advance(1000)
+  await $.prompt.submit(enter(h, RAW))
+  expect(h.submitted[1]?.text).toBe('이렇게 하면 되네.')
+})
+
+// Demo recording, 2026-10-14: takes where Claude Code showed "Voice: processing…" for longer went
+// out raw. A transcript that lands in one piece and stays past the settle time ended as a dropped
+// offer, and the send that followed found no dictation.
+test('tap mode: a transcript that waited in the prompt before the voice sent it is tidied', async ($, on) => {
+  const h = install(on, { replies: [reply('이렇게 하면 되네.')], voice: { mode: 'tap' } })
+  await start($)
+  await dictate(h, [RAW])
+  await h.clock.advance(2000)
+  await $.prompt.submit(enter(h))
+  expect(h.submitted[0]?.text).toBe('이렇게 하면 되네.')
+})
+
+test('tap mode: a prompt recalled and sent after a while is sent as it is', async ($, on) => {
+  const h = install(on, { replies: [reply('Refactor the parser module.')], voice: { mode: 'tap' }, store: { 'sent-prints': [promptPrint(RECALLED)] } })
+  await start($)
+  h.draft = RECALLED
+  await h.clock.advance(2000)
+  await $.prompt.submit(enter(h))
+  expect(h.submitted[0]?.text).toBe(RECALLED)
+  expect(h.modelCalls).toBe(0)
+})
+
+test('tap mode: a typed prompt left a while is sent as it is', async ($, on) => {
+  const h = install(on, { replies: [reply('이렇게 하면 되네.')], voice: { mode: 'tap' } })
+  await start($)
+  await edit($, { origin: { kind: 'composer' }, key: { key: 'e' }, text: '', cursor: 0, start: 0, end: 0, inputText: RAW })
+  await h.clock.advance(2000)
+  await $.prompt.submit(enter(h))
+  expect(h.submitted[0]?.text).toBe(RAW)
+  expect(h.modelCalls).toBe(0)
+})
+
+// Demo repro, 2026-10-14: while listening, Claude Code showed "And", heard in the silence before a
+// Chinese sentence; the final transcript replaced it and was sent "as typed" because the text
+// around the dictation had changed.
+test('tap mode: a final transcript that replaced a word shown while listening is tidied', async ($, on) => {
+  const h = install(on, { replies: [reply('이렇게 하면 되네.')], voice: { mode: 'tap' } })
+  await start($)
+  await dictate(h, ['And'])
+  await h.clock.advance(2000)
+  await $.prompt.submit(enter(h, RAW))
+  expect(h.submitted[0]?.text).toBe('이렇게 하면 되네.')
+})
+
+test('tap mode: a final transcript that replaced a long interim shown while listening is tidied', async ($, on) => {
+  const h = install(on, { replies: [reply('이렇게 하면 되네.')], voice: { mode: 'tap' } })
+  await start($)
+  await dictate(h, ['wait for the game'])
+  await h.clock.advance(2000)
+  await $.prompt.submit(enter(h, RAW))
+  expect(h.submitted[0]?.text).toBe('이렇게 하면 되네.')
+})
+
+test('tap mode: speech added after a typed word keeps the word as typed', async ($, on) => {
+  const h = install(on, { replies: [reply('이렇게 하면 되네.')], voice: { mode: 'tap' } })
+  await start($)
+  await edit($, { origin: { kind: 'composer' }, key: { key: 'x' }, text: '', cursor: 0, start: 0, end: 0, inputText: '메모: ' })
+  await h.clock.advance(2000)
+  await $.prompt.submit(enter(h, `메모: ${RAW}`))
+  expect(h.submitted[0]?.text).toBe('메모: 이렇게 하면 되네.')
+})

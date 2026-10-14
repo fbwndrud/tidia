@@ -123,12 +123,16 @@ type Ctx = {
   // The prompt a pause polish found nothing to change in, or failed on: Enter sends it as it is
   // rather than asking the model again.
   tried: string | null
+  // A change the poll saw in one piece and that then stayed past the settle time, and the prompt
+  // before it: not speech by itself, but tap mode and voice.autoSubmit send a transcript that
+  // waited like this, or write the final one over a few words shown while listening.
+  offered: { baseline: string; text: string } | null
 }
 
-type Dictation = Pick<Ctx, 'det' | 'dictBase' | 'ready' | 'landed' | 'learnBase' | 'tried'>
+type Dictation = Pick<Ctx, 'det' | 'dictBase' | 'ready' | 'landed' | 'learnBase' | 'tried' | 'offered'>
 
 function fresh(cfg: Config, locale: Locale = 'en', enabled = true, language?: string): Ctx {
-  return { cfg, locale, language, enabled, det: initial(''), nextId: 0, job: null, ready: null, dictBase: null, polling: false, abort: null, terms: null, learnBase: null, said: [], landed: null, surface: null, sent: 0, emptied: null, tried: null }
+  return { cfg, locale, language, enabled, det: initial(''), nextId: 0, job: null, ready: null, dictBase: null, polling: false, abort: null, terms: null, learnBase: null, said: [], landed: null, surface: null, sent: 0, emptied: null, tried: null, offered: null }
 }
 
 let ctx: Ctx = fresh(parseConfig({}))
@@ -1098,8 +1102,12 @@ async function tick($: EngineInterface): Promise<void> {
 }
 
 function feed($: EngineInterface, ev: DetectorEvent): void {
-  const r = step(ctx.det, ev, ctx.cfg.settleMs)
+  const before = ctx.det
+  const r = step(before, ev, ctx.cfg.settleMs)
   ctx.det = r.state
+  if (ev.type === 'poll' && before.phase === 'candidate' && r.state.phase === 'idle' && r.state.last === before.last && ctx.dictBase === null) {
+    ctx.offered = { baseline: before.baseline, text: before.last }
+  }
   // Speech after a keyboard edit, even a word too short to polish: what it writes was not typed.
   if (r.state.phase === 'dictating' && ctx.dictBase === null) ctx.learnBase = null
   if (!r.effect) return
@@ -1118,10 +1126,11 @@ function feed($: EngineInterface, ev: DetectorEvent): void {
 function forgetDictation(): void {
   ctx.dictBase = null
   ctx.ready = null
+  ctx.offered = null
 }
 
 function dictation(): Dictation {
-  return { det: ctx.det, dictBase: ctx.dictBase, ready: ctx.ready, landed: ctx.landed, learnBase: ctx.learnBase, tried: ctx.tried }
+  return { det: ctx.det, dictBase: ctx.dictBase, ready: ctx.ready, landed: ctx.landed, learnBase: ctx.learnBase, tried: ctx.tried, offered: ctx.offered }
 }
 
 async function clearView($: EngineInterface, id: number): Promise<void> {
@@ -1386,13 +1395,23 @@ async function polishForSubmit($: EngineInterface, text: string, d: Dictation): 
   // Enter right after speaking, tap mode and voice.autoSubmit send before the dictation settled.
   const det = d.det
   let base = d.dictBase ?? (det.phase === 'dictating' ? det.baseline : null)
-  // Tap mode and autoSubmit put the final transcript in and submit it at once, so the poll saw the
-  // speech once or not at all. Under hold-to-talk without autoSubmit that is a recalled prompt.
-  const unseen = det.phase === 'candidate' || (det.phase === 'idle' && text !== det.last)
-  if (base === null && unseen && (await voiceSubmits($))) {
-    // ↑ puts a past prompt in at once too: one sent before is recalled, not spoken.
-    if (prints.includes(promptPrint(text))) return null
-    base = det.phase === 'candidate' ? det.baseline : det.last
+  // Tap mode and autoSubmit put the final transcript in and submit it, so the poll saw the speech
+  // once or not at all. Under hold-to-talk without autoSubmit that is a recalled prompt.
+  const unseen = det.phase === 'idle' && text !== det.last
+  const offered = d.offered
+  const seenOnce =
+    det.phase === 'candidate' ? det.baseline
+    : det.phase === 'idle' && det.last === text && offered?.text === text ? offered.baseline
+    : null
+  if (base === null && (unseen || seenOnce !== null) && (await voiceSubmits($))) {
+    // ↑ puts a past prompt in at once too: one sent before is recalled, not spoken. Enter after ↑
+    // is a key press of its own, so the poll saw it; what the voice puts in goes out before a poll,
+    // and the same words said again are speech.
+    if (!unseen && prints.includes(promptPrint(text))) return null
+    // The final transcript replaces what the voice showed while listening (2026-10-14: "And", heard
+    // in the silence before a Chinese sentence).
+    const shown = offered !== null && offered.text === det.last ? offered.baseline : null
+    base = seenOnce ?? (shown !== null && !keeps(det.last, text) ? shown : det.last)
   }
   if (base === null) return det.phase === 'idle' && text === det.last ? null : sentAsTyped($, 'no dictation was seen in the prompt')
   // The engine has emptied the prompt by now, so the message itself must be the prompt from before
@@ -1400,7 +1419,7 @@ async function polishForSubmit($: EngineInterface, text: string, d: Dictation): 
   // the prompt and arrives expanded.
   if (PASTED.test(det.last)) return sentAsTyped($, 'the prompt holds a paste')
   const segment = findSegment(base, text)
-  if (text.slice(0, segment.start) + text.slice(segment.end) !== base) return sentAsTyped($, 'the text around the dictation changed')
+  if (!keeps(base, text)) return sentAsTyped($, 'the text around the dictation changed')
   if (countWords(segment.text) < MIN_WORDS) return null
   // The send replaces any polish of the half-said text: it must not show that one's result.
   ctx.abort?.abort()
@@ -1410,6 +1429,12 @@ async function polishForSubmit($: EngineInterface, text: string, d: Dictation): 
   const p = outcome.polished
   notice($, t(ctx.locale, 'sent_polished'))
   return { text: replaceSegment(p.draft, p.segment, p.replacement), raw: p.original, polished: p }
+}
+
+// Whether text is base with one run put in.
+function keeps(base: string, text: string): boolean {
+  const segment = findSegment(base, text)
+  return text.slice(0, segment.start) + text.slice(segment.end) === base
 }
 
 const LEARN_VISIBLE_MS = 10_000
