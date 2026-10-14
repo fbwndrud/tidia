@@ -6,7 +6,7 @@
 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh.md) · [繁體中文](README.zh-TW.md) · Español · [Deutsch](README.de.md) · [Français](README.fr.md) · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [Bahasa Indonesia](README.id.md)
 <!-- languages:end -->
 
-![Un dictado con muletillas y correcciones se envía como un mensaje claro](docs/demo.gif)
+![Un dictado con muletillas y correcciones se envía como un mensaje claro](docs/demo.es.gif)
 
 Tidia (*TID-ee-a*) limpia el texto que el dictado integrado de Claude Code escribe en el campo de entrada antes de enviarlo. Funciona con `/voice` en la terminal y con el botón del micrófono en la aplicación de escritorio.
 
@@ -55,7 +55,7 @@ El tono y el formato se guardan como reglas de salida, que se aplican siempre o 
 
 Cuando Claude identifica una palabra mal reconocida, la añade al diccionario y te avisa; «deshaz eso» la elimina. Para cambiar entradas que no añadió él, pide permiso. Con `dict_approval ask` pregunta antes de cualquier cambio. También pregunta antes de cambiar reglas o ajustes, salvo que el modo de permisos de Claude Code ya autorice las herramientas de Tidia. Los ajustes antiguos se migran en el primer inicio tras actualizar.
 
-![Una regla de informe de errores solicitada por voz y aplicada después de autorizarla](docs/demo-settings.gif)
+![Una regla de informe de errores solicitada por voz y aplicada después de autorizarla](docs/demo-settings.es.gif)
 
 ## Coste y privacidad
 

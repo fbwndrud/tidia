@@ -7,6 +7,12 @@
 #   scripts/record-demo.sh ko           docs/demo.ko.gif           cleanup, Korean
 #   scripts/record-demo.sh en-settings  docs/demo-settings.gif     an output rule asked for by voice
 #   scripts/record-demo.sh ko-settings  docs/demo-settings.ko.gif
+#   scripts/record-demo.sh ja           docs/demo.ja.gif           the same for ja, zh, zh-TW, es, de,
+#   scripts/record-demo.sh ja-settings  docs/demo-settings.ja.gif  fr, pt-BR, ru and id
+#
+# Hindi has none: agg draws Devanagari without joining its letters, and Claude Code and tmux count
+# its cell widths differently, so the letters come out apart or doubled. README.hi.md shows the
+# English demos.
 #
 # Needs macOS, tmux, asciinema and agg (brew install tmux asciinema agg), a quiet room and the
 # speakers on (not muted). Run it from a folder Claude Code already trusts. Each dictation sends one
@@ -17,7 +23,8 @@ set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 WORKDIR=$PWD
-SET=${1:?usage: record-demo.sh en|ko|en-settings|ko-settings}
+USAGE='usage: record-demo.sh <en|ko|ja|zh|zh-TW|es|de|fr|pt-BR|ru|id>[-settings]'
+SET=${1:?$USAGE}
 # DEMO_DIR=<folder> keeps the recordings; a scene whose recording is already there is not recorded
 # again, so one bad scene can be redone by deleting its file.
 OUT=${DEMO_DIR:-$(mktemp -d)}
@@ -31,7 +38,17 @@ case $SET in
   en | en-settings) VOICE=Samantha RATE=185 LANGUAGE=English ASK='Allow it?' HELD='s: Send as is' TAIL=3 ;;
   # Korean recognition makes up a sentence in a long silence after the voice, so it stops sooner.
   ko | ko-settings) VOICE=Yuna RATE=170 LANGUAGE=Korean ASK='허용할까요?' HELD='s: 그냥 보내기' TAIL=1.5 ;;
-  *) echo "usage: record-demo.sh en|ko|en-settings|ko-settings" >&2; exit 2 ;;
+  # HELD is the band's "sends once tidied" line in the session's language.
+  ja | ja-settings) VOICE=Kyoko RATE=180 LANGUAGE=Japanese ASK='許可しますか' HELD='整え終わったら送信します' TAIL=1.5 ;;
+  zh | zh-settings) VOICE=Tingting RATE=180 LANGUAGE='Simplified Chinese' ASK='允许吗' HELD='整理完成后发送' TAIL=1.5 ;;
+  zh-TW | zh-TW-settings) VOICE=Meijia RATE=180 LANGUAGE='繁體中文' ASK='要允許嗎' HELD='整理完成後傳送' TAIL=1.5 ;;
+  es | es-settings) VOICE=Paulina RATE=180 LANGUAGE=Spanish ASK='¿Lo permites?' HELD='Se envía al terminar' TAIL=2 ;;
+  de | de-settings) VOICE=Anna RATE=175 LANGUAGE=German ASK='Erlauben?' HELD='Wird nach dem Glätten gesendet' TAIL=2 ;;
+  fr | fr-settings) VOICE=Thomas RATE=180 LANGUAGE=French ASK="L'autoriser ?" HELD='Envoi une fois mis au propre' TAIL=2 ;;
+  pt-BR | pt-BR-settings) VOICE=Luciana RATE=180 LANGUAGE='Brazilian Portuguese' ASK='Permitir?' HELD='Envia ao terminar' TAIL=2 ;;
+  ru | ru-settings) VOICE=Milena RATE=175 LANGUAGE=Russian ASK='Разрешить?' HELD='Отправится после обработки' TAIL=2 ;;
+  id | id-settings) VOICE=Damayanti RATE=180 LANGUAGE=Indonesian ASK='Izinkan?' HELD='Dikirim setelah dirapikan' TAIL=2 ;;
+  *) echo "$USAGE" >&2; exit 2 ;;
 esac
 case $SET in
   en) GIF=demo.gif SCENES=(
@@ -49,6 +66,78 @@ case $SET in
   ) ;;
   ko-settings) GIF=demo-settings.ko.gif SCENES=(
     "say:음 티디아 규칙 하나 추가해 줘 어 버그 얘기할 때는 증상 재현 방법 기대 결과 순서로 정리되게|approve|say:어 그 로그인 버튼이 음 사파리에서 안 눌려 그러니까 눌러도 아무 반응이 없는데 원래는 어 대시보드로 넘어가야 돼"
+  ) ;;
+  ja) GIF=demo.ja.gif SCENES=(
+    "say:えっと、あの、ログインページの、いや、設定ページがスマホでなんでこんなに遅いのか、えーと、調べてくれる？"
+    "say:えーと、まずテストを実行して、あの、失敗したら直して、それから、えっと、変更履歴を更新して、最後に全部コミットして"
+    "say:あの、ダークモードの切り替えを、えっと、ヘッダーに、いや違う、設定ページに追加して、選んだ設定を覚えておくようにして"
+  ) ;;
+  ja-settings) GIF=demo-settings.ja.gif SCENES=(
+    "say:えっと、ルールを一つ追加して、あの、バグを報告するときは、何が起きるか、再現手順、期待する結果の順に書くように|approve|say:えーと、ログインボタンがサファリで反応しなくて、あの、押しても何も起きないんだけど、本当はダッシュボードに移動するはず"
+  ) ;;
+  zh) GIF=demo.zh.gif SCENES=(
+    "say:嗯，那个，你帮我看看登录页面，不对，是设置页面，呃，为什么在手机上这么慢"
+    "say:嗯，先跑一下测试，呃，如果有失败的就修一下，然后，那个，更新一下变更日志，最后全部提交"
+    "say:那个，帮我在，呃，页头加一个深色模式开关，不对，是设置页面，然后让它记住用户的选择"
+  ) ;;
+  zh-settings) GIF=demo-settings.zh.gif SCENES=(
+    "say:嗯，帮我加一条规则，呃，就是我报告问题的时候，按照现象、复现步骤、预期结果来写|approve|say:那个，登录按钮在苹果浏览器上点了没反应，呃，就是点了什么都不发生，本来应该跳到仪表盘的"
+  ) ;;
+  zh-TW) GIF=demo.zh-TW.gif SCENES=(
+    "say:嗯，那個，你幫我看看登入頁面，不對，是設定頁面，呃，為什麼在手機上這麼慢"
+    "say:嗯，先跑一下測試，呃，如果有失敗的就修一下，然後，那個，更新變更紀錄，最後全部提交"
+    "say:那個，幫我在，呃，頁首加一個深色模式開關，不對，是設定頁面，然後讓它記住使用者的選擇"
+  ) ;;
+  zh-TW-settings) GIF=demo-settings.zh-TW.gif SCENES=(
+    "say:嗯，幫我加一條規則，呃，就是我回報問題的時候，照現象、重現步驟、預期結果來寫|approve|say:那個，登入按鈕在蘋果瀏覽器上點了沒反應，呃，就是點了什麼都沒發生，本來應該跳到儀表板的"
+  ) ;;
+  es) GIF=demo.es.gif SCENES=(
+    "say:eh, oye, ¿puedes revisar la página de inicio de sesión, digo, la página de ajustes, y, este, ver por qué va tan lenta en el celular?"
+    "say:bueno, eh, primero corre las pruebas y, este, si algo falla arréglalo, luego actualiza el registro de cambios y, eh, al final haz commit de todo"
+    "say:eh, ¿puedes agregar un interruptor de modo oscuro en el, este, encabezado, no, espera, en la página de ajustes, y que recuerde la elección?"
+  ) ;;
+  es-settings) GIF=demo-settings.es.gif SCENES=(
+    "say:oye, agrega una regla, este, para que cuando reporte un error se escriba como qué pasa, pasos para reproducirlo y qué esperaba|approve|say:bueno, eh, el botón de iniciar sesión no hace nada en Safari, o sea, lo presiono y no pasa nada, y debería llevarme al panel"
+  ) ;;
+  de) GIF=demo.de.gif SCENES=(
+    "say:ähm, kannst du dir mal die Login-Seite, äh, ich meine die Einstellungsseite anschauen und, ähm, prüfen, warum sie auf dem Handy so langsam ist"
+    "say:also, ähm, zuerst die Tests ausführen und, äh, wenn was fehlschlägt, das beheben, dann das Änderungsprotokoll aktualisieren und, ähm, zum Schluss alles committen"
+    "say:also, ähm, kannst du einen Dunkelmodus-Schalter in den, ähm, Kopfbereich, nein warte, in die Einstellungsseite einbauen und die Auswahl speichern"
+  ) ;;
+  de-settings) GIF=demo-settings.de.gif SCENES=(
+    "say:ähm, füg bitte eine Regel hinzu, äh, wenn ich einen Fehler melde, soll er als was passiert, Schritte zum Nachstellen und was ich erwartet habe geschrieben werden|approve|say:also, ähm, der Anmeldeknopf macht in Safari nichts, also ich klicke drauf und, äh, nichts passiert, dabei sollte er mich zur Übersicht bringen"
+  ) ;;
+  fr) GIF=demo.fr.gif SCENES=(
+    "say:euh, tu peux regarder la page de connexion, enfin je veux dire la page des paramètres, et, euh, voir pourquoi elle charge si lentement sur mobile"
+    "say:bon, euh, d'abord lance les tests et, euh, si quelque chose échoue corrige-le, ensuite mets à jour le journal des modifications et, euh, enfin fais un commit de tout"
+    "say:euh, tu peux ajouter un bouton de mode sombre dans l'en-tête, euh, non, pardon, dans la page des paramètres, et qu'il se souvienne du choix"
+  ) ;;
+  fr-settings) GIF=demo-settings.fr.gif SCENES=(
+    "say:euh, ajoute une règle, euh, pour que quand je signale un bug il soit écrit comme ce qui se passe, les étapes pour le reproduire et ce que j'attendais|approve|say:bon, euh, le bouton de connexion ne fait rien sur Safari, genre je clique et, euh, il ne se passe rien, alors qu'il devrait m'amener au tableau de bord"
+  ) ;;
+  pt-BR) GIF=demo.pt-BR.gif SCENES=(
+    "say:é, então, você pode olhar a página de login, quer dizer, a página de configurações, e, tipo, ver por que ela está tão lenta no celular"
+    "say:tá, tipo, primeiro roda os testes e, é, se alguma coisa falhar corrige, depois atualiza o registro de mudanças e, é, no final faz commit de tudo"
+    "say:é, você pode colocar um botão de modo escuro no, é, cabeçalho, não, espera, na página de configurações, e fazer ele lembrar a escolha"
+  ) ;;
+  pt-BR-settings) GIF=demo-settings.pt-BR.gif SCENES=(
+    "say:tipo, adiciona uma regra, é, pra quando eu relatar um bug ele ser escrito como o que acontece, passos pra reproduzir e o que eu esperava|approve|say:então, é, o botão de login não faz nada no Safari, tipo, eu clico e, é, nada acontece, e era pra me levar pro painel"
+  ) ;;
+  ru) GIF=demo.ru.gif SCENES=(
+    "say:э-э, слушай, можешь посмотреть страницу входа, то есть, нет, страницу настроек, и, ну, понять, почему она так тормозит на телефоне"
+    "say:так, э-э, сначала запусти тесты и, ну, если что-то падает, исправь, потом обнови список изменений и, э-э, в конце закоммить всё"
+    "say:э-э, можешь добавить переключатель тёмной темы в, ну, шапку, нет, подожди, на страницу настроек, и чтобы он запоминал выбор"
+  ) ;;
+  ru-settings) GIF=demo-settings.ru.gif SCENES=(
+    "say:э-э, добавь правило, ну, чтобы когда я сообщаю об ошибке, она записывалась как что происходит, шаги воспроизведения и что я ожидал|approve|say:так, э-э, кнопка входа в сафари ничего не делает, ну, я нажимаю и ничего не происходит, а должна открывать панель"
+  ) ;;
+  id) GIF=demo.id.gif SCENES=(
+    "say:eh, anu, bisa tolong cek halaman login, eh maksudnya halaman pengaturan, terus, hmm, lihat kenapa lambat banget di HP"
+    "say:oke, eh, pertama jalankan tesnya dan, anu, kalau ada yang gagal perbaiki, terus perbarui catatan perubahan dan, eh, terakhir commit semuanya"
+    "say:eh, bisa tambahkan tombol mode gelap di, anu, header, eh bukan, di halaman pengaturan, dan buat dia ingat pilihannya"
+  ) ;;
+  id-settings) GIF=demo-settings.id.gif SCENES=(
+    "say:eh, tambahkan aturan, anu, supaya kalau aku melaporkan bug ditulis jadi apa yang terjadi, langkah untuk mereproduksi, dan apa yang aku harapkan|approve|say:oke, eh, tombol login nggak ngapa-ngapain di Safari, maksudnya aku klik dan, anu, nggak ada yang terjadi, padahal harusnya ke dashboard"
   ) ;;
 esac
 
@@ -75,7 +164,7 @@ say_step() {
   for _ in $(seq 1 80); do tm capture-pane -t tidia -p | grep -q 'esc to interrupt' && break; sleep 0.25; done
   # The band shows up just after the send.
   sleep 1
-  for _ in $(seq 1 120); do tm capture-pane -t tidia -p | grep -q "$HELD" || break; sleep 0.25; done
+  for _ in $(seq 1 360); do tm capture-pane -t tidia -p | grep -q "$HELD" || break; sleep 0.25; done
   mark "sent$RANDOM"
 }
 
@@ -183,11 +272,17 @@ with open(f'{out_dir}/{name}.cast', 'w') as f:
     f.writelines(json.dumps(e, ensure_ascii=False) + '\n' for e in events)
 PY
 
-# agg reads .ttf files from a folder; the system's .ttc collections are not picked up.
+# agg reads .ttf files from a folder; the system's .ttc collections are not picked up. Arial Unicode
+# has kana, Han, Cyrillic and Devanagari; AppleGothic comes first only for Korean, so Japanese and
+# Chinese text does not borrow its Hanja.
+case $SET in
+  en* | ko*) WIDE_FONTS='AppleGothic,Arial Unicode MS' ;;
+  *) WIDE_FONTS='Arial Unicode MS,AppleGothic' ;;
+esac
 mkdir -p "$OUT/fonts"
-cp /System/Library/Fonts/Supplemental/AppleGothic.ttf "$OUT/fonts/"
+cp /System/Library/Fonts/Supplemental/AppleGothic.ttf "/System/Library/Fonts/Supplemental/Arial Unicode.ttf" "$OUT/fonts/"
 cp "${MONO_FONT:-$HOME/Library/Fonts/DejaVu Sans Mono for Powerline.ttf}" "$OUT/fonts/"
-agg --font-dir "$OUT/fonts" --font-family "${MONO_FAMILY:-DejaVu Sans Mono for Powerline},AppleGothic" \
+agg --font-dir "$OUT/fonts" --font-family "${MONO_FAMILY:-DejaVu Sans Mono for Powerline},$WIDE_FONTS" \
   --font-size 16 --idle-time-limit 3 --last-frame-duration 4 --theme monokai \
   "$OUT/$SET.cast" "$ROOT/docs/$GIF"
 echo "wrote $ROOT/docs/$GIF (recordings in $OUT)"

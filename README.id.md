@@ -6,7 +6,7 @@
 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Deutsch](README.de.md) · [Français](README.fr.md) · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · Bahasa Indonesia
 <!-- languages:end -->
 
-![Dikte penuh kata pengisi dan koreksi dikirim sebagai pesan yang jelas](docs/demo.gif)
+![Dikte penuh kata pengisi dan koreksi dikirim sebagai pesan yang jelas](docs/demo.id.gif)
 
 Tidia (*TID-ee-a*) merapikan teks yang ditulis fitur dikte bawaan Claude Code ke kolom prompt sebelum dikirim. Berfungsi dengan `/voice` di terminal dan tombol mikrofon di aplikasi desktop.
 
@@ -55,7 +55,7 @@ Nada dan format disimpan sebagai aturan keluaran, berlaku selalu atau saat kondi
 
 Saat yakin sebuah kata salah dikenali, Claude menambahkannya ke kamus dan memberi tahu dalam satu baris; «batalkan itu» menghapusnya. Perubahan entri yang bukan ditambahkan Claude memerlukan izin. `dict_approval ask` meminta izin sebelum setiap perubahan kamus. Aturan dan pengaturan juga meminta izin, kecuali mode izin Claude Code sudah mengizinkan alat Tidia. Pengaturan lama dipindahkan saat pertama kali dijalankan setelah pembaruan.
 
-![Aturan laporan bug yang diminta melalui suara diterapkan setelah diizinkan](docs/demo-settings.gif)
+![Aturan laporan bug yang diminta melalui suara diterapkan setelah diizinkan](docs/demo-settings.id.gif)
 
 ## Biaya dan privasi
 

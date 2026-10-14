@@ -6,7 +6,7 @@
 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Deutsch](README.de.md) · [Français](README.fr.md) · Português (Brasil) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [Bahasa Indonesia](README.id.md)
 <!-- languages:end -->
 
-![Um ditado com hesitações e correções é enviado como uma mensagem clara](docs/demo.gif)
+![Um ditado com hesitações e correções é enviado como uma mensagem clara](docs/demo.pt-BR.gif)
 
 O Tidia (*TID-ee-a*) organiza o texto que o ditado integrado do Claude Code coloca no campo de entrada antes do envio. Funciona com `/voice` no terminal e com o botão de microfone no aplicativo para desktop.
 
@@ -55,7 +55,7 @@ O tom e o formato são regras de saída, aplicadas sempre ou quando uma condiç�
 
 Quando identifica uma palavra mal reconhecida, o Claude a adiciona ao dicionário e avisa; «desfaça isso» a remove. Alterar entradas que ele não adicionou exige autorização. `dict_approval ask` faz perguntar antes de qualquer mudança. Regras e ajustes também pedem autorização, salvo se o modo de permissões do Claude Code já permitir as ferramentas do Tidia. Os ajustes antigos são migrados na primeira inicialização após uma atualização.
 
-![Uma regra de relato de bug solicitada por voz e aplicada após autorização](docs/demo-settings.gif)
+![Uma regra de relato de bug solicitada por voz e aplicada após autorização](docs/demo-settings.pt-BR.gif)
 
 ## Custo e privacidade
 

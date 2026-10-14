@@ -6,7 +6,7 @@
 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · Deutsch · [Français](README.fr.md) · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [Bahasa Indonesia](README.id.md)
 <!-- languages:end -->
 
-![Ein Diktat mit Füllwörtern und Korrekturen wird als klare Nachricht gesendet](docs/demo.gif)
+![Ein Diktat mit Füllwörtern und Korrekturen wird als klare Nachricht gesendet](docs/demo.de.gif)
 
 Tidia (*TID-ee-a*) bereinigt den Text, den Claude Codes integrierte Diktierfunktion ins Eingabefeld schreibt, bevor du ihn sendest. Es funktioniert mit `/voice` im Terminal und der Mikrofontaste in der Desktop-App.
 
@@ -55,7 +55,7 @@ Ton und Aufbau werden als Ausgaberegeln gespeichert, die immer oder nur unter ei
 
 Erkennt Claude ein falsch verstandenes Wort, fügt es das Wort dem Wörterbuch hinzu und meldet es; „Mach das rückgängig“ entfernt es. Änderungen an Einträgen, die Claude nicht selbst hinzugefügt hat, erfordern Zustimmung. `dict_approval ask` verlangt eine Nachfrage vor jeder Wörterbuchänderung. Auch Regeln und Einstellungen benötigen Zustimmung, außer Claude Codes Berechtigungsmodus erlaubt Tidias Werkzeuge bereits. Alte Einstellungen werden beim ersten Start nach einem Update übernommen.
 
-![Eine per Sprache gewünschte Fehlerbericht-Regel wird nach Zustimmung angewendet](docs/demo-settings.gif)
+![Eine per Sprache gewünschte Fehlerbericht-Regel wird nach Zustimmung angewendet](docs/demo-settings.de.gif)
 
 ## Kosten und Datenschutz
 

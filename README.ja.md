@@ -6,7 +6,7 @@
 [English](README.md) · [한국어](README.ko.md) · 日本語 · [简体中文](README.zh.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Deutsch](README.de.md) · [Français](README.fr.md) · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [Bahasa Indonesia](README.id.md)
 <!-- languages:end -->
 
-![言いよどみや言い直しのある音声入力が、読みやすいメッセージとして送られる様子](docs/demo.gif)
+![言いよどみや言い直しのある音声入力が、読みやすいメッセージとして送られる様子](docs/demo.ja.gif)
 
 Tidia（ティディア）は、Claude Code の内蔵音声入力がプロンプトに書き込んだ文章を、送信前に整えます。ターミナルの `/voice` とデスクトップアプリのマイクボタンで動作します。
 
@@ -55,7 +55,7 @@ Claude Code 2.1.296 以降が必要です。macOS で確認済みで、Linux と
 
 Claude が音声認識の間違いだと判断できた単語は、自動で辞書に追加して一行で知らせます。「元に戻して」で削除できます。Claude が追加していない項目を変える場合は先に確認します。`dict_approval ask` ならすべての辞書変更を確認します。ルールや設定も確認しますが、Claude Code の権限モードが Tidia のツールを許可済みなら確認しません。旧版の設定は、更新後の初回起動時に移行します。
 
-![音声でバグ報告のルールを頼み、許可すると次の報告に適用される様子](docs/demo-settings.gif)
+![音声でバグ報告のルールを頼み、許可すると次の報告に適用される様子](docs/demo-settings.ja.gif)
 
 ## 費用とプライバシー
 

@@ -6,7 +6,7 @@
 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · 简体中文 · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Deutsch](README.de.md) · [Français](README.fr.md) · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [Bahasa Indonesia](README.id.md)
 <!-- languages:end -->
 
-![包含口头语和自我纠正的语音输入被整理为清晰的消息](docs/demo.gif)
+![包含口头语和自我纠正的语音输入被整理为清晰的消息](docs/demo.zh.gif)
 
 Tidia（读作 *TID-ee-a*）在发送前，整理 Claude Code 内置语音输入写入提示框的文字。支持终端的 `/voice` 和桌面应用的麦克风按钮。
 
@@ -55,7 +55,7 @@ Tidia（读作 *TID-ee-a*）在发送前，整理 Claude Code 内置语音输入
 
 Claude 能确定某个词被错误识别时，会自行加入词典并用一行通知你；说“撤销”可删除。修改不是由 Claude 添加的词条时会先询问。`dict_approval ask` 要求每次修改词典都先询问。修改规则和设置也会询问，除非 Claude Code 的权限模式已允许 Tidia 工具。旧版设置会在升级后的首次启动时迁移。
 
-![通过语音请求 bug 报告规则，批准后应用到下一次口述](docs/demo-settings.gif)
+![通过语音请求 bug 报告规则，批准后应用到下一次口述](docs/demo-settings.zh.gif)
 
 ## 费用与隐私
 

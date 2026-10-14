@@ -6,7 +6,7 @@
 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Deutsch](README.de.md) · Français · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [Bahasa Indonesia](README.id.md)
 <!-- languages:end -->
 
-![Une dictée avec hésitations et corrections devient un message clair](docs/demo.gif)
+![Une dictée avec hésitations et corrections devient un message clair](docs/demo.fr.gif)
 
 Tidia (*TID-ee-a*) nettoie le texte saisi par la dictée intégrée de Claude Code avant son envoi. Il fonctionne avec `/voice` dans le terminal et le bouton du microphone de l’application de bureau.
 
@@ -55,7 +55,7 @@ Le ton et la présentation sont des règles de sortie, appliquées toujours ou s
 
 Lorsque Claude identifie un mot mal reconnu, il l’ajoute au dictionnaire et vous prévient ; « annule ça » le retire. Modifier une entrée qu’il n’a pas ajoutée nécessite votre accord. `dict_approval ask` impose une question avant chaque changement. Les règles et réglages demandent aussi votre accord, sauf si le mode de permissions de Claude Code autorise déjà les outils de Tidia. Les anciens réglages sont migrés au premier démarrage après une mise à jour.
 
-![Une règle de rapport de bug demandée oralement et appliquée après autorisation](docs/demo-settings.gif)
+![Une règle de rapport de bug demandée oralement et appliquée après autorisation](docs/demo-settings.fr.gif)
 
 ## Coût et confidentialité
 

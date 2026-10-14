@@ -1,6 +1,6 @@
 # Translation maintenance
 
-`README.md` is the documentation source. The Korean README uses Korean demos and links to Korean reference documents; the other translations reuse the English demos and reference documents. All 12 READMEs explain installation, usage, voice controls, costs and stored data, limits, development and licensing. When behavior changes, update the corresponding section in every translation.
+`README.md` is the documentation source. The Korean README uses Korean demos and links to Korean reference documents. The other translations link to the English reference documents and show demos recorded in their own language (`docs/demo.<lang>.gif`), except Hindi, which keeps the English demos because the GIF renderer cannot shape Devanagari. All 12 READMEs explain installation, usage, voice controls, costs and stored data, limits, development and licensing. When behavior changes, update the corresponding section in every translation.
 
 Interface messages are independent of the dictation language. `ui_language auto` follows Claude Code's language setting; an explicit locale overrides it, and unknown languages use English. The existing `pt` locale uses Brazilian Portuguese; its README is `README.pt-BR.md`. Traditional Chinese uses `zh-TW`, including automatic selection for `zh-Hant` and the TW/HK/MO regions. An explicit script takes precedence over the region.
 

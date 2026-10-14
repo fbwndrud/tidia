@@ -6,7 +6,7 @@
 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh.md) · 繁體中文 · [Español](README.es.md) · [Deutsch](README.de.md) · [Français](README.fr.md) · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [Bahasa Indonesia](README.id.md)
 <!-- languages:end -->
 
-![含有贅詞與自行更正的語音輸入，整理成清楚的訊息後傳送](docs/demo.gif)
+![含有贅詞與自行更正的語音輸入，整理成清楚的訊息後傳送](docs/demo.zh-TW.gif)
 
 Tidia（讀作 *TID-ee-a*）在傳送前，整理 Claude Code 內建語音輸入寫入提示欄的文字。支援終端機的 `/voice` 和桌面應用程式的麥克風按鈕。
 
@@ -55,7 +55,7 @@ Tidia（讀作 *TID-ee-a*）在傳送前，整理 Claude Code 內建語音輸入
 
 Claude 能確定某個詞被錯誤辨識時，會自行加入字典並用一行通知你；說「復原」可刪除。修改不是由 Claude 新增的項目時會先詢問。`dict_approval ask` 要求每次修改字典都先詢問。修改規則與設定也會詢問，除非 Claude Code 的權限模式已允許 Tidia 工具。舊版設定會在升級後的首次啟動時移轉。
 
-![以語音要求 bug 回報規則，允許後套用到下一次口述](docs/demo-settings.gif)
+![以語音要求 bug 回報規則，允許後套用到下一次口述](docs/demo-settings.zh-TW.gif)
 
 ## 費用與隱私
 
