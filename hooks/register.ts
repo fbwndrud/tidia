@@ -974,7 +974,7 @@ async function pastPrompts($: EngineInterface, root: string): Promise<string[]> 
 async function buildDictionary($: EngineInterface, L: Locale): Promise<string | null> {
   let answer: string
   try {
-    answer = await $.ui.ask(t(L, 'build_question'), { options: [t(L, 'build_with'), t(L, 'build_repo')], header: t(L, 'pane_title') })
+    answer = await $.ui.ask(t(L, 'build_question'), { options: [t(L, 'build_with'), t(L, 'build_repo')], header: 'Tidia' })
   } catch {
     return t(L, 'build_cancelled')
   }

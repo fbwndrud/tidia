@@ -136,4 +136,4 @@ flowchart LR
 | `src/language.ts`, `src/tokens.ts` | 언어별 문자 체계와 단어 세기. |
 | `src/ui/` | 입력창 위 밴드, 메시지 줄, 사전 창. |
 | `src/config.ts`, `src/settings.ts`, `src/migrate.ts` | 설정, `/tidia set`, 옛 버전 설정 옮기기. |
-| `src/i18n.ts` | 8개 언어 인터페이스 문구. |
+| `src/i18n.ts` | 12개 언어 인터페이스 문구. 추가 번역은 `src/locales/`. |

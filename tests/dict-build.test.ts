@@ -58,6 +58,14 @@ test('/tidia dict build asks first; repo only reads no conversations and propose
   expect(project.entries.map(e => `${e.meant}:${e.source}`)).toEqual(['voice-polish-mod:bootstrap', 'Tailscale:bootstrap'])
 })
 
+// The question's chip holds 12 characters: a translated title would be cut ("Voice dictio").
+test('the dictionary build question names Tidia in its chip', async ($, on) => {
+  const h = install(on, { ask: 'Repo only', files: { '/repo/README.md': README }, replies: [termsReply(['Tailscale'])] })
+  await start($)
+  await $.command.run(command('dict build'))
+  expect(h.askedHeaders).toEqual(['Tidia'])
+})
+
 test('with consent, past conversations of this project add the words the person says', async ($, on) => {
   const h = install(on, {
     ask: 'Repo and past conversations',

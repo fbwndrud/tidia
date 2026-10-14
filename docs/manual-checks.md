@@ -65,3 +65,14 @@ Load the mod (session mods folder, or `CLAUDE_CODE_PLUGIN_DIRS` in `~/.claude/se
 | D10 | `/tidia dict build`: the question offers "Repo only" and "Repo and past conversations"; after a few seconds the pane lists found words; Add all stores them for this project. | ok (2.1.296, tmux, Claude): question, Repo only, proposals, Skip all |
 | D11 | Removed in 0.1 (2026-10-11): the team file and `/tidia dict export` are gone. | — |
 | D12 | `/tidia set dictionary off`: dictating "테일스케일 같은 기능" with the entry stored still sends "테일스케일"/"Tailscan"; on again restores "Tailscale". | ok (2.1.296, tmux, Claude, 2026-10-13) with `english_terms off`: dictionary off sent "테일 스케일 같은 기능 우리도 넣어줘.", on sent "Tailscale …". With `english_terms auto` the cleanup restores "Tailscale" even with the dictionary off. |
+
+## Right-to-left UI (2026-10-14)
+
+An Arabic UI was built and checked, then held back from the release. What the checks found, in Claude Code 2.1.296 on macOS:
+
+| Surface | Result |
+|---|---|
+| Desktop app | Unicode isolates (one per line, LTR for commands and dictionary mappings) keep `/tidia set <setting> <value>`, `--project` and `heard → meant` in order inside an RTL sentence. `ui.ask` draws bidi controls as `�`, so its question and choices must be plain. |
+| Terminal.app (Terminal 2.15, 112×42 and 56×40) | Claude Code's terminal renderer replaces every bidi control with U+FFFD in command output, log rows and panes, with and without tmux: the isolates show as `�`. Plain text shows connected letters and intact commands, but Terminal.app lays out each screen row as one left-to-right paragraph across the whole row, so an Arabic label and an Arabic heard form merge into one run, pane buttons swap places with neighbouring Arabic words, and a pane's Arabic text can join Arabic in the conversation column on the same row. |
+
+The question chip of `ui.ask` holds 12 characters: `قاموس الإملاء` showed as `قاموس الإملا`. `/tidia dict build` now names `Tidia` in it (seen in English in Terminal.app).

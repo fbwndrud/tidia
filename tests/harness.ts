@@ -21,6 +21,8 @@ export type Harness = {
   stored: (key: string) => unknown
   tools: unknown[]
   asked: string[]
+  // The chip beside each question, in order.
+  askedHeaders: Array<string | undefined>
   // The session's project root; a test moves it as /cd would.
   root: string
   // What $.fs holds, written files included.
@@ -91,6 +93,7 @@ export function install(on: On, opts: {
     tools: [],
     opened: [],
     asked: [],
+    askedHeaders: [],
     root: '/repo',
     files: { ...(opts.files ?? {}) },
     logs: [],
@@ -154,8 +157,10 @@ export function install(on: On, opts: {
   on('process.run', () => ({ value: { exitCode: 0, stdout: opts.git ?? '', stderr: '', isStdoutTruncated: false, isStderrTruncated: false } }))
   on('tool.call', (_$, e) => {
     if (e.tool !== 'AskUserQuestion') return { deny: 'no such tool in the test' }
-    const q = (e as unknown as { questions: Array<{ question: string }> }).questions[0]!.question
+    const first = (e as unknown as { questions: Array<{ question: string; header?: string }> }).questions[0]!
+    const q = first.question
     h.asked.push(q)
+    h.askedHeaders.push(first.header)
     if (opts.ask === undefined) return { deny: 'dismissed' }
     return { result: { questions: [], answers: { [q]: opts.ask } } } as never
   })

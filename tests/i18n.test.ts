@@ -1,5 +1,6 @@
 import { test, expect } from './kit'
 import { t, LOCALES } from '../src/i18n'
+import { SUPPORTED_LOCALES } from '../src/config'
 
 test('t returns the locale string', () => {
   expect(t('ko', 'failed')).toBe('정리 못 함 · 원문 그대로')
@@ -21,7 +22,7 @@ test('every locale fills every message and keeps its variables', () => {
       expect(`${locale}.${key} ${vars(table[key]).join(',')}`).toBe(`${locale}.${key} ${vars(en[key]).join(',')}`)
     }
   }
-  expect(Object.keys(LOCALES).sort()).toEqual(['de', 'en', 'es', 'fr', 'ja', 'ko', 'pt', 'zh'])
+  expect(Object.keys(LOCALES).sort()).toEqual([...SUPPORTED_LOCALES].sort())
 })
 
 test('messages read in the added languages', () => {
@@ -31,4 +32,17 @@ test('messages read in the added languages', () => {
   expect(t('de', 'failed')).toBe('Nicht geglättet, Original bleibt')
   expect(t('fr', 'failed')).toBe('Pas mis au propre, original conservé')
   expect(t('pt', 'failed')).toBe('Não polido, original mantido')
+  expect(t('zh-TW', 'failed')).toBe('無法整理 · 保留原文')
+  expect(t('ru', 'failed')).toBe('Не удалось обработать, сохранён исходный текст')
+  expect(t('hi', 'failed')).toBe('पाठ नहीं सँवारा जा सका, मूल पाठ रखा गया')
+  expect(t('id', 'failed')).toBe('Gagal dirapikan, teks asli dipertahankan')
+})
+
+test('translations keep runnable command names', () => {
+  const tokens = (s: string) => (s.match(/\/tidia(?: (?:dict|settings|set|rules|on|off|add|remove|list|build))*/g) ?? []).sort()
+  for (const table of Object.values(LOCALES)) {
+    for (const key of Object.keys(LOCALES.en) as Array<keyof typeof LOCALES.en>) {
+      expect(tokens(table[key])).toEqual(tokens(LOCALES.en[key]))
+    }
+  }
 })

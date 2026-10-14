@@ -1,7 +1,7 @@
 {
   "name": "tidia",
   "displayName": "Tidia — dictation cleanup for Claude Code",
-  "version": "0.1.24",
+  "version": "0.1.25",
   "description": "Tidy dictation for AI: turns voice dictation in the Claude Code prompt into a clear, concise message before you send it, with fillers, repeats and taken-back words gone and several requests as a list; or, in minimal style, keeps your own wording.",
   "author": { "name": "JoungKyoungLyoo" },
   "homepage": "https://github.com/fbwndrud/tidia",
@@ -86,8 +86,8 @@
     "ui_language": {
       "type": "string",
       "title": "Interface language",
-      "description": "Language of the mod's labels. auto follows Claude Code's language setting (English when it names another language).",
-      "options": ["auto", "en", "ko", "ja", "zh", "es", "de", "fr", "pt"],
+      "description": "Language of the mod's labels: English, Korean, Japanese, Simplified or Traditional Chinese, Spanish, German, French, Brazilian Portuguese, Russian, Hindi or Indonesian. auto follows Claude Code's language setting; unsupported languages use English.",
+      "options": ["auto", "en", "ko", "ja", "zh", "zh-TW", "es", "de", "fr", "pt", "ru", "hi", "id"],
       "default": "auto"
     }
   }

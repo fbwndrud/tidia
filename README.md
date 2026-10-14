@@ -2,7 +2,9 @@
 
 **Tidy dictation for AI.** Talk messy. Send tidy.
 
-[한국어](README.ko.md)
+<!-- languages:start -->
+English · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Deutsch](README.de.md) · [Français](README.fr.md) · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [Bahasa Indonesia](README.id.md)
+<!-- languages:end -->
 
 ![Spoken requests full of fillers and self-corrections are sent as clean messages](docs/demo.gif)
 
@@ -72,7 +74,9 @@ When Claude can tell a word you dictated was misheard, it adds it to the diction
 
 **Limits.** The VS Code extension has no band, so the debug details do not show there. A dictation under three words is left as it is. Spoken commands like "make it shorter" or "send" are cleaned as text, not followed. Speech recognition drops intonation, so a question said without a question word can come out as a statement; Claude gets your raw words with it and is asked to check.
 
-**Languages.** The cleanup works in any language Claude writes. The checks that catch a flipped meaning or an answer sent in place of your request, and the golden set, cover eight: Korean, English, Japanese, Chinese, Spanish, German, French and Portuguese (162 of 164 cases pass, one run with sonnet).
+**Languages.** The README and interface messages are available  in 12 languages: English, Korean, Japanese, Simplified and Traditional Chinese, Spanish, German, French, Brazilian Portuguese, Russian, Hindi and Indonesian. `ui_language auto` follows Claude Code's language setting; set one explicitly with, for example, `/tidia set ui_language ja`. Traditional Chinese is selected for `zh-TW`, `zh-Hant` and `zh-HK`; unsupported languages use English.
+
+The cleanup works in any language Claude writes. The new translations do not extend the language-specific cleanup validation. The checks that catch a flipped meaning or an answer sent in place of your request, and the golden set, cover eight: Korean, English, Japanese, Chinese, Spanish, German, French and Portuguese (162 of 164 cases pass, one run with sonnet).
 
 **Something cleaned wrong?** [Open an issue](https://github.com/fbwndrud/tidia/issues/new?template=cleanup.yml) with what you said and what was sent. Each report becomes a test case.
 
@@ -89,6 +93,8 @@ claude plugin validate --strict .
 ```bash
 npx -y -p typescript@5.6.3 tsc -p .
 ```
+
+Check that the settings match with `bun scripts/check-settings.ts`, and that translated README links and commands match with `python3 scripts/check-translations.py`. See [translation maintenance](docs/translations.md) when adding a language or changing documentation.
 
 The typecheck reads the engine's declarations from `.claude-plugin/types/`, which Claude Code writes when it first loads the mod (`claude --plugin-dir .`).
 

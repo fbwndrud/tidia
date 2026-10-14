@@ -134,4 +134,4 @@ No audio, no other server, no telemetry. The only network call is the cleanup it
 | `src/language.ts`, `src/tokens.ts` | Writing systems and word counting across languages. |
 | `src/ui/` | The band above the prompt, the message rows, the dictionary pane. |
 | `src/config.ts`, `src/settings.ts`, `src/migrate.ts` | Settings, `/tidia set`, and moving settings saved by older versions. |
-| `src/i18n.ts` | Interface text in eight languages. |
+| `src/i18n.ts` | Interface text in 12 languages; new tables live in `src/locales/`. |

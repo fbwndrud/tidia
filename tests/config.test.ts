@@ -1,5 +1,5 @@
 import { test, expect } from './kit'
-import { parseConfig, resolveLocale, STYLES } from '../src/config'
+import { parseConfig, resolveLocale, STYLES, SUPPORTED_LOCALES } from '../src/config'
 
 test('parseConfig fills defaults', () => {
   expect(parseConfig({})).toEqual({
@@ -54,7 +54,7 @@ test('parseConfig offers opus as well', () => {
 test('resolveLocale knows the six added languages by code and by name', () => {
   for (const [setting, locale] of [
     ['japanese', 'ja'], ['日本語', 'ja'], ['ja-JP', 'ja'],
-    ['chinese', 'zh'], ['中文', 'zh'], ['zh-CN', 'zh'], ['zh-TW', 'zh'],
+    ['chinese', 'zh'], ['中文', 'zh'], ['zh-CN', 'zh'],
     ['spanish', 'es'], ['español', 'es'], ['es-MX', 'es'],
     ['german', 'de'], ['deutsch', 'de'], ['de-AT', 'de'],
     ['french', 'fr'], ['français', 'fr'], ['fr-CA', 'fr'],
@@ -63,6 +63,35 @@ test('resolveLocale knows the six added languages by code and by name', () => {
     expect(resolveLocale('auto', setting)).toBe(locale)
   }
   expect(resolveLocale('de', 'korean')).toBe('de')
+})
+
+test('new languages resolve by regional code, English name and native name', () => {
+  for (const [language, locale] of [
+    ['Russian', 'ru'], ['русский', 'ru'], ['ru-RU', 'ru'],
+    ['Hindi', 'hi'], ['हिन्दी', 'hi'], ['हिंदी', 'hi'], ['hi-IN', 'hi'],
+    ['Indonesian', 'id'], ['Bahasa Indonesia', 'id'], ['id-ID', 'id'],
+    ['Brazilian Portuguese', 'pt'], ['Português (Brasil)', 'pt'],
+    ['Traditional Chinese', 'zh-TW'], ['繁體中文', 'zh-TW'], ['繁体中文', 'zh-TW'],
+    ['zh-TW', 'zh-TW'], ['zh_HK', 'zh-TW'], ['zh-MO', 'zh-TW'],
+    ['zh-Hant', 'zh-TW'], ['zh-Hant-CN', 'zh-TW'], [' ZH_hant_TW ', 'zh-TW'],
+    ['Simplified Chinese', 'zh'], ['簡體中文', 'zh'], ['zh-Hans', 'zh'], ['zh-Hans-TW', 'zh'],
+  ] as const) expect(resolveLocale('auto', language)).toBe(locale)
+  expect(resolveLocale('auto', 'unsupported')).toBe('en')
+  expect(resolveLocale('auto', 'constructor')).toBe('en')
+  expect(resolveLocale('auto', null)).toBe('en')
+  expect(resolveLocale('hi', 'en-US')).toBe('hi')
+  // Arabic is not offered yet: it reads as English.
+  expect(resolveLocale('auto', 'ar-SA')).toBe('en')
+  expect(parseConfig({ ui_language: 'ar' }).uiLanguage).toBe('auto')
+})
+
+test('every supported UI language can be saved and explicitly overrides automatic detection', () => {
+  for (const locale of SUPPORTED_LOCALES) {
+    const cfg = parseConfig({ ui_language: locale })
+    expect(cfg.uiLanguage).toBe(locale)
+    expect(resolveLocale(cfg.uiLanguage, 'English')).toBe(locale)
+  }
+  expect(parseConfig({ ui_language: 'unknown' }).uiLanguage).toBe('auto')
 })
 
 // 0.1.4 dropped the mode setting (smart or review): a saved one is ignored.

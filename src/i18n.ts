@@ -1,4 +1,8 @@
 import type { Locale } from './config'
+import { HI } from './locales/hi'
+import { ID } from './locales/id'
+import { RU } from './locales/ru'
+import { ZH_TW } from './locales/zh-TW'
 
 const EN = {
   polishing: 'Tidying…',
@@ -795,7 +799,10 @@ const PT: Record<Key, string> = {
 }
 
 // Every locale's table, by locale: the compiler holds each to the English keys.
-export const LOCALES: Record<Locale, Record<Key, string>> = { en: EN, ko: KO, ja: JA, zh: ZH, es: ES, de: DE, fr: FR, pt: PT }
+export const LOCALES: Record<Locale, Record<Key, string>> = {
+  en: EN, ko: KO, ja: JA, zh: ZH, 'zh-TW': ZH_TW, es: ES, de: DE, fr: FR, pt: PT,
+  ru: RU, hi: HI, id: ID,
+}
 
 export function t(locale: Locale, key: Key, vars: Record<string, string> = {}): string {
   return LOCALES[locale][key].replace(/\{(\w+)\}/g, (whole, name: string) => vars[name] ?? whole)

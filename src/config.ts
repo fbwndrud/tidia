@@ -2,7 +2,8 @@
 // rules (wording, register and layout all live there since 0.1.21). minimal: fillers dropped, the
 // speaker's own words kept as plain sentences; no rules.
 export type Style = 'polish' | 'minimal'
-export type Locale = 'en' | 'ko' | 'ja' | 'zh' | 'es' | 'de' | 'fr' | 'pt'
+export const SUPPORTED_LOCALES = ['en', 'ko', 'ja', 'zh', 'zh-TW', 'es', 'de', 'fr', 'pt', 'ru', 'hi', 'id'] as const
+export type Locale = typeof SUPPORTED_LOCALES[number]
 // How far phonetically transcribed English terms go back to English spelling, like an effort level.
 export type EnglishTerms = 'auto' | 'off' | 'low' | 'medium' | 'high'
 // ask: offer a corrected word for the dictionary, add it the second time. off: never learn.
@@ -45,7 +46,7 @@ export const DICT_APPROVALS: readonly DictApproval[] = ['auto', 'ask']
 export const POLISH_ON: readonly PolishOn[] = ['enter', 'pause']
 export const MESSAGE_VIEWS: readonly MessageView[] = ['tidied', 'labeled', 'full']
 export const BUBBLE_LABELS_CHARS = 80
-export const UI_LANGUAGES: readonly Config['uiLanguage'][] = ['auto', 'en', 'ko', 'ja', 'zh', 'es', 'de', 'fr', 'pt']
+export const UI_LANGUAGES: readonly Config['uiLanguage'][] = ['auto', ...SUPPORTED_LOCALES]
 
 export const DEFAULTS: Config = {
   style: 'polish',
@@ -95,16 +96,29 @@ const LANGUAGE_NAMES: Record<string, Locale> = {
   en: 'en', english: 'en',
   ko: 'ko', korean: 'ko', '한국어': 'ko',
   ja: 'ja', japanese: 'ja', '日本語': 'ja',
-  zh: 'zh', chinese: 'zh', '中文': 'zh', '简体中文': 'zh', '繁體中文': 'zh',
+  zh: 'zh', chinese: 'zh', '中文': 'zh', '简体中文': 'zh', '簡體中文': 'zh', 'simplified chinese': 'zh',
+  '繁體中文': 'zh-TW', '繁体中文': 'zh-TW', 'traditional chinese': 'zh-TW',
   es: 'es', spanish: 'es', 'español': 'es', espanol: 'es',
   de: 'de', german: 'de', deutsch: 'de',
   fr: 'fr', french: 'fr', 'français': 'fr', francais: 'fr',
   pt: 'pt', portuguese: 'pt', 'português': 'pt', portugues: 'pt',
+  'brazilian portuguese': 'pt', 'português (brasil)': 'pt',
+  ru: 'ru', russian: 'ru', 'русский': 'ru',
+  hi: 'hi', hindi: 'hi', 'हिन्दी': 'hi', 'हिंदी': 'hi',
+  id: 'id', indonesian: 'id', 'bahasa indonesia': 'id',
 }
 
 export function resolveLocale(setting: Config['uiLanguage'], language: unknown): Locale {
   if (setting !== 'auto') return setting
   if (typeof language !== 'string') return 'en'
-  const key = language.trim().toLowerCase().split(/[-_]/)[0] ?? ''
-  return LANGUAGE_NAMES[key] ?? 'en'
+  const key = language.trim().toLowerCase().replace(/_/g, '-')
+  if (Object.hasOwn(LANGUAGE_NAMES, key)) return LANGUAGE_NAMES[key]!
+  const [base, ...parts] = key.split('-')
+  // An explicit script wins over the region (e.g. zh-Hans-TW is simplified).
+  if (base === 'zh') {
+    if (parts.includes('hant')) return 'zh-TW'
+    if (parts.includes('hans')) return 'zh'
+    if (parts.some(part => ['tw', 'hk', 'mo'].includes(part))) return 'zh-TW'
+  }
+  return base && Object.hasOwn(LANGUAGE_NAMES, base) ? LANGUAGE_NAMES[base]! : 'en'
 }

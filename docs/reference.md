@@ -70,7 +70,7 @@ Change them by asking Claude, with `/tidia set`, in `/config`, or at install wit
 | `message_view` | `tidied`, `labeled`, `full` | `tidied` | How a message tidied at Enter shows, on the desktop and in the terminal. tidied: only the message sent. labeled: what Tidia did (`→ tidied`, `→ list` or `→ minimal`, with `· rules applied` when an output rule with a condition applied), then the message sent, a line per row. full: what you said, then the same. Tidia rewrites the text of the engine's own row, so the desktop bubble keeps its time, copy, rewind and fork controls. Saved before 0.1.22, `show_raw show` becomes `full` and `hide` becomes `labeled`. |
 | `bubble_labels` | free text, up to 80 characters | empty | The words for what Tidia did, shown with `message_view` labeled or full, in the order tidied/list/minimal, separated by `/` ("clean/to do/as said"). A part left empty keeps the interface language's word. `none` clears it. |
 | `attach_raw` | `on`, `off` | `on` | Send the raw dictation with each tidied message as one line Claude sees and your message row does not, so Claude can recover from a bad cleanup. The line holds a fixed sentence and the raw text only. See [what Claude receives](architecture.md#4-what-claude-receives). |
-| `ui_language` | `auto`, `en`, `ko`, `ja`, `zh`, `es`, `de`, `fr`, `pt` | `auto` | Language of the mod's labels. auto follows Claude Code's language setting. |
+| `ui_language` | `auto`, `en`, `ko`, `ja`, `zh`, `zh-TW`, `es`, `de`, `fr`, `pt`, `ru`, `ar`, `hi`, `id` | `auto` | Language of the mod's labels. auto follows Claude Code's language setting. |
 
 `/tidia set` works in interactive sessions. A `claude -p` run has no `/config` rows for plugin options, so set them with `claude plugin install … --config key=value` or `claude plugin configure` instead.
 
@@ -98,4 +98,4 @@ Rules arrange what you said: they may add the wording they spell out (a label, a
 
 ## Translations
 
-The labels come in English, Korean, Japanese, Chinese, Spanish, German, French and Portuguese. English and Korean are written by hand; the others are machine quality until a native speaker reviews them. Corrections are welcome as pull requests to `src/i18n.ts`.
+The labels come in 12 languages: English, Korean, Japanese, Simplified and Traditional Chinese, Spanish, German, French, Brazilian Portuguese, Russian, Hindi and Indonesian. Automatic selection recognizes language names and regional codes; `zh-Hant` and the TW/HK/MO regions select Traditional Chinese. Unsupported languages use English. English and Korean are written by hand; the other translations await native-speaker review. Corrections are welcome as pull requests to `src/i18n.ts` and `src/locales/`; see [translation maintenance](translations.md).

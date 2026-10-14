@@ -8,6 +8,12 @@ test('/tidia with no argument reports the status in the session language', { opt
   expect(r.text).toBe('Tidia 켜짐 · 정리 시점: pause · 스타일: polish · 영어 용어: auto · 바꾸기: /tidia set <설정> <값> (목록: /tidia settings)')
 })
 
+test('automatic Traditional Chinese UI uses its own messages', { options: { ui_language: 'auto' } }, async ($, on) => {
+  install(on, { language: 'zh-Hant-HK' })
+  await start($)
+  expect((await $.command.run(command('off'))).text).toBe('已在本工作階段關閉 Tidia。')
+})
+
 test('/tidia with an unknown argument explains the usage', async ($, on) => {
   install(on)
   await start($)

@@ -70,7 +70,7 @@ Claude에게 말하거나, `/tidia set`, `/config`, 또는 설치할 때 `claude
 | `message_view` | `tidied`, `labeled`, `full` | `tidied` | Enter 때 정리한 메시지를 데스크톱과 터미널에서 보여 주는 방식. tidied: 보낸 글만. labeled: Tidia가 한 일(`→ 간결화`/`→ 목록화`/`→ 최소 수정`, 조건이 붙은 출력 규칙을 적용했으면 `· 규칙 적용`) 아래 보낸 글을 줄마다. full: 말한 원문 아래 같은 내용. 엔진의 원래 줄 글만 바꾸므로 데스크톱 말풍선의 시간·복사·되돌리기·fork 줄이 그대로 남음. 0.1.22 전에 저장한 `show_raw show`는 `full`로, `hide`는 `labeled`로 옮김. |
 | `bubble_labels` | 80자까지 자유 입력 | 비어 있음 | `message_view`가 labeled·full일 때 보일 문구, 간결화/목록화/최소 수정 순서로 `/`로 나눔("정리/할 일/그대로"). 비운 칸은 인터페이스 언어의 기본 문구. `none`이면 지움. |
 | `attach_raw` | `on`, `off` | `on` | 정리된 메시지마다 받아쓴 원문을 한 줄로 함께 보냄. Claude는 보고 내 메시지 화면에는 안 보이며, 정해진 안내 문장과 원문만 들어 있음. 정리가 잘못돼도 Claude가 원래 뜻을 알 수 있게 함. [Claude가 받는 것](architecture.ko.md#4-claude가-받는-것) 참고. |
-| `ui_language` | `auto`, `en`, `ko`, `ja`, `zh`, `es`, `de`, `fr`, `pt` | `auto` | mod 문구의 언어. auto는 Claude Code 언어 설정을 따름. |
+| `ui_language` | `auto`, `en`, `ko`, `ja`, `zh`, `zh-TW`, `es`, `de`, `fr`, `pt`, `ru`, `ar`, `hi`, `id` | `auto` | mod 문구의 언어. auto는 Claude Code 언어 설정을 따름. |
 
 `/tidia set`은 대화형 세션에서 동작합니다. `claude -p` 실행에는 플러그인 설정 행이 없으니 `claude plugin install … --config key=value`나 `claude plugin configure`를 쓰세요.
 
@@ -98,4 +98,4 @@ Claude에게 말하거나, `/tidia set`, `/config`, 또는 설치할 때 `claude
 
 ## 번역
 
-문구는 영어, 한국어, 일본어, 중국어, 스페인어, 독일어, 프랑스어, 포르투갈어로 나옵니다. 영어와 한국어는 직접 썼고, 나머지는 원어민 검토 전까지 기계 번역 수준입니다. 고칠 곳은 `src/i18n.ts`에 pull request로 보내 주세요.
+문구는 12개 언어로 나옵니다: 영어, 한국어, 일본어, 중국어 간체·번체, 스페인어, 독일어, 프랑스어, 브라질 포르투갈어, 러시아어, 힌디어, 인도네시아어. 자동 선택은 언어 이름과 지역 코드를 인식하며, `zh-Hant`와 TW/HK/MO 지역은 번체를 선택합니다. 지원하지 않는 언어는 영어로 표시합니다. 영어와 한국어는 직접 썼고, 나머지 번역은 원어민 검토 전입니다. 고칠 곳은 `src/i18n.ts`와 `src/locales/`에 pull request로 보내 주세요. [번역 유지 관리 안내](translations.md)(영문)를 참고하세요.

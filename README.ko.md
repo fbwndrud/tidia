@@ -2,7 +2,9 @@
 
 **막 말해도, 티 없이.** Tidia(티디아)는 tidy dictation for AI, 즉 AI에게 보낼 받아쓰기를 깔끔하게 정리해 준다는 뜻입니다.
 
-[English](README.md)
+<!-- languages:start -->
+[English](README.md) · 한국어 · [日本語](README.ja.md) · [简体中文](README.zh.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Deutsch](README.de.md) · [Français](README.fr.md) · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [Bahasa Indonesia](README.id.md)
+<!-- languages:end -->
 
 ![군말과 잘못 받아써진 용어가 섞인 받아쓰기가 깔끔한 메시지로 전송되는 모습](docs/demo.ko.gif)
 
@@ -72,7 +74,9 @@ Claude Code 2.1.296 이상이 필요합니다. macOS에서 확인했고, Linux�
 
 **한계.** VS Code 확장에는 밴드가 없어서 debug 표시가 나오지 않습니다. 세 단어 미만의 받아쓰기는 그대로 둡니다. "더 짧게", "보내" 같은 음성 명령은 따르지 않고 글로 정리합니다. 음성 인식은 억양을 남기지 않아서, 물음표 없이 말한 질문이 단정문으로 정리될 수 있습니다. Claude는 원문을 함께 받고 확인하도록 안내받습니다.
 
-**언어.** 정리 자체는 Claude가 쓰는 모든 언어에서 동작합니다. 의미가 뒤집히거나 요청 대신 답이 나간 경우를 잡는 검사와 골든셋은 8개 언어를 다룹니다: 한국어, 영어, 일본어, 중국어, 스페인어, 독일어, 프랑스어, 포르투갈어(164개 중 162개 통과, sonnet 1회 실행).
+**언어.** README와 내부 안내 문구는 12개 언어를 지원합니다: 영어, 한국어, 일본어, 중국어 간체·번체, 스페인어, 독일어, 프랑스어, 브라질 포르투갈어, 러시아어, 힌디어, 인도네시아어. `ui_language auto`는 Claude Code의 언어 설정을 따릅니다. 직접 선택하려면 `/tidia set ui_language ja`처럼 지정하세요. `zh-TW`·`zh-Hant`·`zh-HK`는 번체로 인식하고, 지원하지 않는 언어는 영어로 표시합니다.
+
+정리 자체는 Claude가 쓰는 모든 언어에서 동작합니다. 번역 추가로 언어별 정리 검증 범위가 늘어난 것은 아닙니다. 의미가 뒤집히거나 요청 대신 답이 나간 경우를 잡는 검사와 골든셋은 8개 언어를 다룹니다: 한국어, 영어, 일본어, 중국어, 스페인어, 독일어, 프랑스어, 포르투갈어(164개 중 162개 통과, sonnet 1회 실행).
 
 **정리가 이상한가요?** 말한 것과 보내진 것을 적어 [이슈를 열어 주세요](https://github.com/fbwndrud/tidia/issues/new?template=cleanup.yml). 제보 하나가 테스트 케이스 하나가 됩니다.
 
@@ -89,6 +93,8 @@ claude plugin validate --strict .
 ```bash
 npx -y -p typescript@5.6.3 tsc -p .
 ```
+
+설정 일치 여부는 `bun scripts/check-settings.ts`, 번역 README의 링크와 명령어는 `python3 scripts/check-translations.py`로 확인합니다. 언어를 추가하거나 문서를 바꿀 때는 [번역 유지 관리 안내](docs/translations.md)(영문)를 참고하세요.
 
 타입 검사는 `.claude-plugin/types/`의 엔진 선언을 읽습니다. 이 폴더는 Claude Code가 mod를 처음 불러올 때(`claude --plugin-dir .`) 만듭니다.
 
