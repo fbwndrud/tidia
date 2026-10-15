@@ -127,12 +127,15 @@ type Ctx = {
   // before it: not speech by itself, but tap mode and voice.autoSubmit send a transcript that
   // waited like this, or write the final one over a few words shown while listening.
   offered: { baseline: string; text: string } | null
+  // The prompts proposed as the box's dim suggestion, newest first, whitespace folded: Tab puts one
+  // in at once with no edit, as tap mode puts in a transcript.
+  suggested: string[]
 }
 
 type Dictation = Pick<Ctx, 'det' | 'dictBase' | 'ready' | 'landed' | 'learnBase' | 'tried' | 'offered'>
 
 function fresh(cfg: Config, locale: Locale = 'en', enabled = true, language?: string): Ctx {
-  return { cfg, locale, language, enabled, det: initial(''), nextId: 0, job: null, ready: null, dictBase: null, polling: false, abort: null, terms: null, learnBase: null, said: [], landed: null, surface: null, sent: 0, emptied: null, tried: null, offered: null }
+  return { cfg, locale, language, enabled, det: initial(''), nextId: 0, job: null, ready: null, dictBase: null, polling: false, abort: null, terms: null, learnBase: null, said: [], landed: null, surface: null, sent: 0, emptied: null, tried: null, offered: null, suggested: [] }
 }
 
 let ctx: Ctx = fresh(parseConfig({}))
@@ -1408,6 +1411,7 @@ async function polishForSubmit($: EngineInterface, text: string, d: Dictation): 
     // is a key press of its own, so the poll saw it; what the voice puts in goes out before a poll,
     // and the same words said again are speech.
     if (!unseen && prints.includes(promptPrint(text))) return null
+    if (await offeredByClaude($, text)) return sentAsTyped($, 'Claude offered this prompt')
     // The final transcript replaces what the voice showed while listening (2026-10-14: "And", heard
     // in the silence before a Chinese sentence).
     const shown = offered !== null && offered.text === det.last ? offered.baseline : null
@@ -1429,6 +1433,37 @@ async function polishForSubmit($: EngineInterface, text: string, d: Dictation): 
   const p = outcome.polished
   notice($, t(ctx.locale, 'sent_polished'))
   return { text: replaceSegment(p.draft, p.segment, p.replacement), raw: p.original, polished: p }
+}
+
+const SUGGESTED_DEPTH = 5
+const folded = (text: string): string => text.replace(/\s+/g, ' ').trim()
+
+// Text Claude put forward for the person to send lands in the prompt in one change, as a tap-mode
+// transcript does: a suggestion taken with Tab raises neither prompt.edit nor prompt.fill (probe,
+// 2026-10-16), and the desktop's next-step box sends a reply button's message, an argument of a
+// tool Claude called in its last turn, as the person's own Enter.
+async function offeredByClaude($: EngineInterface, text: string): Promise<boolean> {
+  const key = folded(text)
+  if (ctx.suggested.includes(key)) return true
+  try {
+    const messages = await $.session.messages()
+    if (!Array.isArray(messages)) return false
+    const offered = new Set<string>()
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i]!
+      // The person's last prompt began the turn; tool results come back as user rows inside it.
+      if (m.role === 'user' && !m.toolResults?.length) break
+      for (const use of m.toolUses ?? []) argStrings(use.input, offered)
+    }
+    return offered.has(key)
+  } catch {
+    return false
+  }
+}
+
+function argStrings(value: unknown, into: Set<string>, depth = 0): void {
+  if (typeof value === 'string') into.add(folded(value))
+  else if (depth < 4 && typeof value === 'object' && value !== null) for (const v of Object.values(value)) argStrings(v, into, depth + 1)
 }
 
 // Whether text is base with one run put in.
@@ -1658,6 +1693,14 @@ export const register: Register = (on, options) => {
     }
     return r
   })
+
+  // Kept whether or not the box shows it: a surface that draws its own composer may.
+  on('prompt.suggest', async ($, e, next) => {
+    const r = await next(e)
+    const key = folded(e.text)
+    if (key !== '') ctx.suggested = [key, ...ctx.suggested.filter(s => s !== key)].slice(0, SUGGESTED_DEPTH)
+    return r
+  }).catch(($, e, next) => next(e))
 
   on('prompt.submit', async ($, e, next) => {
     // Notifications, peers, channels, schedules and other plugins submit too; only the person's own Enter is ours.

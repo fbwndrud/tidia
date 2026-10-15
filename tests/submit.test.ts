@@ -313,3 +313,76 @@ test('tap mode: speech added after a typed word keeps the word as typed', async 
   await $.prompt.submit(enter(h, `메모: ${RAW}`))
   expect(h.submitted[0]?.text).toBe('메모: 이렇게 하면 되네.')
 })
+
+// 2026-10-16: since tap mode tidies a prompt that lands in one change, prompts Claude offered went
+// out tidied too. A probe showed a suggestion taken with Tab raises no prompt.edit or prompt.fill,
+// and the desktop's next-step box sends a reply button's message (wrap_up's `actions`) as the
+// person's own Enter.
+const SUGGESTED = 'Commit the parser changes and push them to main'
+
+test('tap mode: a prompt suggestion taken with Tab is sent as it is', async ($, on) => {
+  const h = install(on, { replies: [reply('Commit the parser changes and push to main.')], voice: { mode: 'tap' } })
+  await start($)
+  await $.prompt.suggest({ text: SUGGESTED, origin: { kind: 'suggestion' } })
+  h.draft = SUGGESTED
+  await h.clock.advance(600)
+  await $.prompt.submit(enter(h))
+  expect(h.submitted[0]?.text).toBe(SUGGESTED)
+  expect(h.submitted[0]?.context).toBeUndefined()
+  expect(h.modelCalls).toBe(0)
+})
+
+test('tap mode: a prompt suggestion sent before a poll saw it is sent as it is', async ($, on) => {
+  const h = install(on, { replies: [reply('Commit the parser changes and push to main.')], voice: { mode: 'tap' } })
+  await start($)
+  await $.prompt.suggest({ text: SUGGESTED, origin: { kind: 'suggestion' } })
+  await $.prompt.submit(enter(h, SUGGESTED))
+  expect(h.submitted[0]?.text).toBe(SUGGESTED)
+  expect(h.modelCalls).toBe(0)
+})
+
+const BUTTON = 'JSON 키 받았어. 확인하고 옮겨줘.'
+const offered = (message: string) => [
+  { role: 'user' as const, text: '키 탭 열어줘' },
+  {
+    role: 'assistant' as const,
+    text: '',
+    toolUses: [{ tool_use_id: 't1', tool: 'mcp__ccd_turn__wrap_up', input: { recap: '키 탭을 열어둠.', ask: 'JSON 키를 받았나요?', actions: [{ label: '받음, 옮겨줘', message }] } }],
+  },
+  { role: 'user' as const, text: '', toolResults: [{ tool_use_id: 't1', text: 'ok', isError: false }] },
+  { role: 'assistant' as const, text: '키를 받으면 알려주세요.' },
+]
+
+test("tap mode: a reply button's message from Claude's last turn is sent as it is", async ($, on) => {
+  const h = install(on, { replies: [reply('JSON 키 받았어. 확인하고 옮겨 줘.')], voice: { mode: 'tap' }, messages: offered(BUTTON) })
+  await start($)
+  await $.prompt.submit(enter(h, BUTTON))
+  expect(h.submitted[0]?.text).toBe(BUTTON)
+  expect(h.modelCalls).toBe(0)
+})
+
+test('tap mode: a dictation is tidied when the last turn offered other words', async ($, on) => {
+  const h = install(on, { replies: [reply('이렇게 하면 되네.')], voice: { mode: 'tap' }, messages: offered(BUTTON) })
+  await start($)
+  await $.prompt.suggest({ text: SUGGESTED, origin: { kind: 'suggestion' } })
+  await $.prompt.submit(enter(h, RAW))
+  expect(h.submitted[0]?.text).toBe('이렇게 하면 되네.')
+})
+
+test('tap mode: words an earlier turn offered are tidied when dictated', async ($, on) => {
+  const later = [...offered(RAW), { role: 'user' as const, text: '다음' }, { role: 'assistant' as const, text: '네.' }]
+  const h = install(on, { replies: [reply('이렇게 하면 되네.')], voice: { mode: 'tap' }, messages: later })
+  await start($)
+  await $.prompt.submit(enter(h, RAW))
+  expect(h.submitted[0]?.text).toBe('이렇게 하면 되네.')
+})
+
+test('tap mode: speech added after a suggestion taken with Tab is tidied, the suggestion kept', async ($, on) => {
+  const h = install(on, { replies: [reply('이렇게 하면 되네.')], voice: { mode: 'tap' } })
+  await start($)
+  await $.prompt.suggest({ text: SUGGESTED, origin: { kind: 'suggestion' } })
+  h.draft = SUGGESTED
+  await h.clock.advance(2000)
+  await $.prompt.submit(enter(h, `${SUGGESTED} ${RAW}`))
+  expect(h.submitted[0]?.text).toBe(`${SUGGESTED} 이렇게 하면 되네.`)
+})

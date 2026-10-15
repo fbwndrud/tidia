@@ -1,5 +1,5 @@
 import { mock, type Engine, type MockClock } from 'claude-code/testing'
-import type { On, PromptEditInput, PromptEditResult } from 'claude-code'
+import type { On, PromptEditInput, PromptEditResult, SessionMessage } from 'claude-code'
 
 export type Harness = {
   draft: string
@@ -14,7 +14,7 @@ export type Harness = {
   // Each model call's system prompt, in order.
   systems: string[]
   // The conversation `$.session.messages()` returns, and the user turns so far.
-  messages: Array<{ role: 'user' | 'assistant'; text: string }>
+  messages: Message[]
   turns: number
   // What `$.store` holds, by key.
   store: Record<string, unknown>
@@ -38,6 +38,9 @@ export type Harness = {
   rendered: Array<{ component: string; props: Record<string, unknown> }>
 }
 
+// A row of `$.session.messages()`; tool calls and results only where a test gives them.
+export type Message = Pick<SessionMessage, 'role' | 'text' | 'toolResults'> & { toolUses?: SessionMessage['toolUses'] }
+
 const USAGE = { input_tokens: 0, output_tokens: 0, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 }
 
 // Answers every engine call the mod makes, from memory. A `$` call (an op) is answered
@@ -53,7 +56,7 @@ export function install(on: On, opts: {
   // The engine's cap on the whole store, in characters of JSON text (4 MiB in Claude Code).
   storeLimit?: number
   storeReadFails?: string
-  messages?: Array<{ role: 'user' | 'assistant'; text: string }>
+  messages?: Message[]
   paneRefused?: string
   // Files by absolute path, for $.fs; folders are implied by the paths.
   files?: Record<string, string>
@@ -123,7 +126,7 @@ export function install(on: On, opts: {
   on('session.surfaces', () => ({ value: opts.surfaces ?? [] }))
   on('session.id', () => ({ value: opts.sessionId ?? 'session-1' }))
   on('session.turns', () => ({ value: h.turns }))
-  on('session.messages', () => ({ value: h.messages.map(m => ({ ...m, toolUses: [] })) }))
+  on('session.messages', () => ({ value: h.messages.map(m => ({ toolUses: [], ...m })) }))
   // The engine's own verdict for a tool call: ask, as in the default permission mode.
   on('tool.check', () => opts.check ?? { decision: 'ask' as const })
   on('tool.register', (_$, e) => {
@@ -180,6 +183,7 @@ export function install(on: On, opts: {
     h.filled.push(e.text)
     return { isFilled: true }
   })
+  on('prompt.suggest', () => ({ isShown: true }))
   on('prompt.edit', (_$, e) => {
     const text = e.text.slice(0, e.start) + e.inputText + e.text.slice(e.end)
     h.draft = text

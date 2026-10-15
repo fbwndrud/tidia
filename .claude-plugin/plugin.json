@@ -1,7 +1,7 @@
 {
   "name": "tidia",
   "displayName": "Tidia — dictation cleanup for Claude Code",
-  "version": "0.1.27",
+  "version": "0.1.28",
   "description": "Tidy dictation for AI: turns voice dictation in the Claude Code prompt into a clear, concise message before you send it, with fillers, repeats and taken-back words gone and several requests as a list; or, in minimal style, keeps your own wording.",
   "author": { "name": "JoungKyoungLyoo" },
   "homepage": "https://github.com/fbwndrud/tidia",
